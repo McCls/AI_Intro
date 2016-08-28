@@ -1,8 +1,10 @@
 <!doctype html>
+
 <html>
+
 <head>
     <title>Tutorial 1: Getting Started</title>
-    <script src='cytoscape.js'></script>
+    <script src="cytoscape.js"></script>
 </head>
 
 <style>
@@ -17,20 +19,20 @@
 
 <body>
     <div id="cy"></div>
-    <script type="text/javascript" src="">
-        var cy = cytoscape({
+    <script>
+      var cy = cytoscape({
         container: document.getElementById('cy'),
         elements: [
-            { data: { id: 'a' } },
-            { data: { id: 'b' } },
-            {
+          { data: { id: 'a' } },
+          { data: { id: 'b' } },
+          {
             data: {
-            id: 'ab',
-            source: 'a',
-            target: 'b'
+              id: 'ab',
+              source: 'a',
+              target: 'b'
             }
-            }]
-        });
+          }]
+      });
     </script>
 </body>
 </html>
