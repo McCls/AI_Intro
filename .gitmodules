@@ -1,3 +1,6 @@
 [submodule "cytoscape"]
 	path = cytoscape
 	url = https://github.com/cytoscape/cytoscape.js
+[submodule "getting-started/cytoscape.js"]
+	path = getting-started/cytoscape.js
+	url = https://github.com/cytoscape/cytoscape.js
