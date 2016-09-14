@@ -1,8 +1,7 @@
-var distance = require('../TSP_utilities/pathCalculator.js')
+var search = require('./assignment-files/2TSP_DFS_BFS_Connections.js')
 
 module.exports = {
-  process: permute,
-  path: path
+  process: breadthFirstSearch
 }
 
 // Global variables to store values while in recursive function.
@@ -66,9 +65,4 @@ function permute_recursive(input, data)
     input.splice(i, 0, ch);
     usedChars.pop();
   }
-}
-
-function path()
-{
-  return require('path').dirname(require.main.filename);
 }
