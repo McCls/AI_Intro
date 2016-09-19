@@ -52,7 +52,7 @@ module.exports = {
 
 function fetch_start()
 {
-    
+    return start;
 }
 
 function successors(state)
@@ -63,7 +63,7 @@ function successors(state)
 
 function fetch_goal()
 {
-    return B;
+    return goal;
 }
 
 function uniform(pointA, pointB)
