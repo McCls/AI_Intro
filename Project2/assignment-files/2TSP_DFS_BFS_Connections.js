@@ -13,17 +13,17 @@ var goal = B;
 var city_matrix = 
 {
     //  1 2 3 4 5 6 7 8 9 A B <- Using Hex to keep good table format
-    1: { ,2,3,4, , , , , , , },
-    2: { , ,3, , , , , , , , },
-    3: { , , ,4,5, , , , , , },
-    4: { , , , ,5,6,7, , , , },
-    5: { , , , , , ,7,8, , , },
-    6: { , , , , , , ,8, , , },
-    7: { , , , , , , , ,9,A, },
-    8: { , , , , , , , ,9,A,B},
-    9: { , , , , , , , , , ,B},
-  0xA: { , , , , , , , , , ,B},
-  0xB: { , , , , , , , , , , }
+    1: [ ,2,3,4, , , , , , , ],
+    2: [ , ,3, , , , , , , , ],
+    3: [ , , ,4,5, , , , , , ],
+    4: [ , , , ,5,6,7, , , , ],
+    5: [ , , , , , ,7,8, , , ],
+    6: [ , , , , , , ,8, , , ],
+    7: [ , , , , , , , ,9,A, ],
+    8: [ , , , , , , , ,9,A,B],
+    9: [ , , , , , , , , , ,B],
+  0xA: [ , , , , , , , , , ,B],
+  0xB: [ , , , , , , , , , , ]
 }
 
 // Nice prototyped array command written by user 'CMS' at: 
@@ -63,7 +63,7 @@ function successors(state)
 
 function fetch_goal()
 {
-    return ;
+    return B;
 }
 
 function uniform(pointA, pointB)

@@ -14,8 +14,10 @@ var usedChars = [];
 
 function permute(data)
 {
-  var city_array = [];
-
+  if(data === '')
+  {
+    console.exit('No pathing data was recieved. Exiting.');
+  }
   if(data.dimension < 3)
   {
     console.exit('Need 3 or more points to create a full circular path.');
@@ -24,7 +26,9 @@ function permute(data)
   // Create an array holding every city index except for the starting city '1'
   //    The starting city '1' is added as the initial and final points so that
   //    circular, non-repetative paths are generated.
-  for(i=0;i<data.dimension - 1;i++)
+  var city_array = [];
+  var i;
+  for(i = 0; i < data.dimension - 1; i++)
   {
     city_array[i] = i + 2;
   }
@@ -46,6 +50,7 @@ function permute_recursive(input, data)
   // This is adapted from code by SiGanteng found here: http://stackoverflow.com/questions/9960908/permutations-in-javascript
   var i, ch;
   var current_path;
+  var current_distance;
   for (i = 0; i < input.length; i++) {
     ch = input.splice(i, 1)[0];
     usedChars.push(ch);
@@ -70,5 +75,5 @@ function permute_recursive(input, data)
 
 function path()
 {
-  return require('path').dirname(require.main.filename);
+  return __dirname;
 }
