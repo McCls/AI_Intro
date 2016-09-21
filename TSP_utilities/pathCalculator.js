@@ -5,10 +5,16 @@ module.exports = {
 function calculateDistance(data, route)
 {
   var distance = 0;
-  var currentCity;
-  for(currentCity = 0; currentCity < data.dimension; currentCity++)
+  
+  if(route.length <= 1)
   {
-    // Reduce the city numbers by to get thier data indexes
+    return 0;
+  }
+  
+  var currentCity;
+  for(currentCity = 0; currentCity < (route.length - 1); currentCity++)
+  {
+    // Reduce the city numbers by 1 to get thier data indexes
     distance = distance + nextPathLength(data, route[currentCity] - 1, route[currentCity+1] - 1);
   }
   return distance;

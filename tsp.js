@@ -15,13 +15,19 @@ if(!((args[0]) in agent))
 console.log('Searching using \'' + args[0] + '\' agent');
 var active_agent = agent[(args[0])];
 
-var path = concorde.verify(args, active_agent.path() + '/');
+// Check that the user specified file exists
+var path = concorde.verify(args, active_agent.path());
+// Parse the concorde file and extract the data
 var data = concorde.readFile(path);
 
-console.log(data.dimension + ' cities to path.')
+console.log(data.dimension + ' cities to path. \n')
 var best_trial = active_agent.process(data);
 
-console.log('Optimal path found:' + best_trial.route);
+if('route_simplest' in best_trial)
+{
+    console.log('Path with least nodes found:' + best_trial.route_simplest);
+}
+console.log('Optimal distance path found:' + best_trial.route_shortest);
 console.log('Distance required to transverse:' + best_trial.distance);
 
 // To run: node tsp.js agent_type file

@@ -19,15 +19,15 @@ function verify(args, path) {
 
   // One file was detected. Check that it exists.
   if (args.length > 1) {
-    var pathToTest = path + 'assignment-files/' + args[1].toString();
+    var pathToTest = path + '/assignment-files/' + args[1].toString();
 
     verifyFileExists(pathToTest);
 
     concordeFilePath = pathToTest;
   }
   else {
-    console.log('No file specified.');
-    concordeFilePath = '';
+    console.error('No file specified.');
+    process.exit(1)
   }
 
   console.log('Path recognized as: ' + concordeFilePath);
@@ -56,16 +56,18 @@ function readFile(path) {
   };
 
   // Check name
-  if (array[0].split(' ')[0] === 'NAME:') {
-    concordeData.name = array[0].split(' ')[1];
+  var name = array[0].split(' ');
+  if ( name[0] === 'NAME:') {
+    concordeData.name = name[1];
   }
   else {
     throwError('1st Line Should hold data-set NAME');
   }
 
   // Check dimension
-  if (array[4].split(' ')[0] === 'DIMENSION:') {
-    concordeData.dimension = array[4].split(' ')[1];
+  var dimension = array[4].split(' ');
+  if ( dimension[0] === 'DIMENSION:') {
+    concordeData.dimension = parseFloat(dimension[1]);
   }
   else {
     throwError('5th Line Should hold DIMENSION');

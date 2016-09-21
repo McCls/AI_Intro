@@ -7,7 +7,7 @@ module.exports = {
 
 // Global variables to store values while in recursive function.
 var optimal_path =   {
-    route: {},
+    route_shortest: {},
     distance: 0
   };
 var usedChars = [];
@@ -64,7 +64,7 @@ function permute_recursive(input, data)
       if(current_distance < optimal_path.distance)
       {
         optimal_path.distance = current_distance;
-        optimal_path.route = current_path;
+        optimal_path.route_shortest = current_path;
       }
     }
     permute_recursive(input, data);
