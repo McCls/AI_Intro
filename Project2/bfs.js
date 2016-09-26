@@ -12,46 +12,65 @@ var optimal_path = {
   route_shortest: [ ],
   distance: undefined
 };
+var best_path_to_node = [];
+var branching_paths = [];
 
 function breadthFirstSearch(data) {
-  var path = [ map.S() ];
+  var path = [ [map.S()] ];
   search_breadth_recursive(path, data);
   
   return optimal_path;
 }
 
-function search_breadth_recursive(active_path, data) {
-  // Find all paths from the last node on the active path
-  var search_stack = map.P(active_path[active_path.length - 1]);
-  
-  if(search_stack === [ ])
+function search_breadth_recursive(unsolved_branches, data) {
+  if(unsolved_branches === [])
   {
     return 'done';
   }
-  else
+  
+  var next_breadth_level = [];
+  for(var branch in unsolved_branches)
   {
-    // For each potential path, continue the bfs
-    for(var node in search_stack)
+    var active_path = [];
+    active_path = unsolved_branches[branch];
+    // Find all paths from the last node on the active path
+    var search_stack = map.P(active_path[active_path.length - 1]);
+    
+    if(search_stack === [ ])
     {
-      // Clone path once for each child state
-      var new_path = active_path.slice();
-      new_path.push(search_stack[node]);
-      
-      if(search_stack[node] === map.G() )
+      return 'done';
+    }
+    else
+    {
+      // For each potential path, continue the bfs
+      for(var node in search_stack)
       {
-        // For paths that have reached the goal, check if they are better than previously found paths.
-        CheckNewPathToGoal(new_path, data);
-      }
-      else
-      {
-        if(new_path.length < data.dimension - 1)
+        // Clone path once for each child state, and check if it reaches the goal.
+        var new_path = active_path.slice();
+        new_path.push(search_stack[node]);
+        
+        if(search_stack[node] === map.G() )
         {
-          // To avoid infinite loops, only continue on paths with lengths less than the set.
-          search_breadth_recursive(new_path, data);
+          // For paths that have reached the goal, check if they are better than previously found paths.
+          CheckNewPathToGoal(new_path, data);
+        }
+        else
+        {
+          // To avoid infinite loops, only continue on paths with lengths less than the total number of cities in the set.
+          // Additionally, to limit stack size, perform a thinning of data such as that performed by an A* search.
+          if((new_path.length < data.dimension - 1) &&
+             (A_Star_Verifies(new_path, data)))
+          {
+            console.log(new_path)
+            next_breadth_level.push(new_path);
+          }
         }
       }
     }
   }
+  unsolved_branches = null; // Clear the last list from memory.
+  // Using the new breadth level that was reached, continue searching.
+  search_breadth_recursive(next_breadth_level, data);
 }
 
 function CheckNewPathToGoal(new_path, data)
@@ -66,15 +85,35 @@ function CheckNewPathToGoal(new_path, data)
   {
     if(optimal_path.route_simplest.length > new_path.length)
     {
-      console.log(new_path);
       optimal_path.route_simplest = new_path;
     }
     
     if( optimal_path.distance > distance.calculate(data, new_path) )
     {
-      console.log(distance.calculate(data, new_path))
       optimal_path.route_shortest = new_path;
       optimal_path.distance = distance.calculate(data, new_path);
+    }
+  }
+}
+
+function A_Star_Verifies(pathToCheck, data)
+{
+  var node_in_question = pathToCheck[pathToCheck.length - 1];
+  if(best_path_to_node[node_in_question] === undefined)
+  {
+    best_path_to_node[node_in_question] = distance.calculate(data, pathToCheck);
+    return true;
+  }
+  else
+  {
+    if(distance.calculate(data, pathToCheck) < best_path_to_node[node_in_question])
+    {
+      best_path_to_node[node_in_question] = distance.calculate(data, pathToCheck)
+      return true;
+    }
+    else
+    {
+      return false;
     }
   }
 }

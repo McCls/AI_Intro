@@ -57,7 +57,6 @@ function search_depth_recursive(active_path, search_stack, data) {
           StackInOrder(search_stack, map.P(active_node));
         }
       }
-      console.log(active_path)
       search_depth_recursive(active_path.slice(), search_stack, data);
     }
   }
@@ -90,7 +89,6 @@ function CheckNewPathToGoal(new_path, data)
   {
     if(optimal_path.route_simplest.length > new_path.length)
     { 
-      console.log(new_path);
       optimal_path.route_simplest = new_path;
     }
     if(optimal_path.distance > distance.calculate(data, new_path))
