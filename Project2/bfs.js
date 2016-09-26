@@ -101,21 +101,27 @@ function A_Star_Verifies(pathToCheck, data)
   var node_in_question = pathToCheck[pathToCheck.length - 1];
   if(best_path_to_node[node_in_question] === undefined)
   {
-    best_path_to_node[node_in_question] = distance.calculate(data, pathToCheck);
+    best_path_to_node[node_in_question] = {};
+    best_path_to_node[node_in_question]['distance'] = distance.calculate(data, pathToCheck);
+    best_path_to_node[node_in_question]['waypoints'] = pathToCheck.length;
     return true;
   }
   else
   {
-    if(distance.calculate(data, pathToCheck) < best_path_to_node[node_in_question])
+    var good_to_include = false;
+    
+    if(distance.calculate(data, pathToCheck) < best_path_to_node[node_in_question].distance)
     {
-      best_path_to_node[node_in_question] = distance.calculate(data, pathToCheck)
-      return true;
+      best_path_to_node[node_in_question].distance = distance.calculate(data, pathToCheck)
+      good_to_include = true;
     }
-    else
+    if(pathToCheck.length < best_path_to_node[node_in_question].waypoints)
     {
-      return false;
+      best_path_to_node[node_in_question].waypoints = pathToCheck.length;
+      good_to_include = true;
     }
   }
+  return good_to_include;
 }
 
 function path() {
