@@ -12,18 +12,15 @@ var optimal_path = {
   route_shortest: [ ],
   distance: undefined
 };
-// Global variable holding the concorde data for the city set
-var global_data;
 
 function breadthFirstSearch(data) {
-  global_data = data;
   var path = [ map.S() ];
-  search_breadth_recursive(path);
+  search_breadth_recursive(path, data);
   
   return optimal_path;
 }
 
-function search_breadth_recursive(active_path) {
+function search_breadth_recursive(active_path, data) {
   // Find all paths from the last node on the active path
   var search_stack = map.P(active_path[active_path.length - 1]);
   
@@ -36,43 +33,48 @@ function search_breadth_recursive(active_path) {
     // For each potential path, continue the bfs
     for(var node in search_stack)
     {
+      // Clone path once for each child state
       var new_path = active_path.slice();
       new_path.push(search_stack[node]);
+      
       if(search_stack[node] === map.G() )
       {
-        console.log(new_path)
-        CheckNewPathToGoal(new_path, global_data);
+        // For paths that have reached the goal, check if they are better than previously found paths.
+        CheckNewPathToGoal(new_path, data);
       }
       else
       {
-        if(new_path.length < global_data.dimension - 1)
+        if(new_path.length < data.dimension - 1)
         {
           // To avoid infinite loops, only continue on paths with lengths less than the set.
-          search_breadth_recursive(new_path);
+          search_breadth_recursive(new_path, data);
         }
       }
     }
   }
 }
 
-function CheckNewPathToGoal(new_path)
+function CheckNewPathToGoal(new_path, data)
 {
   if(optimal_path.distance === undefined)
   {
     optimal_path.route_shortest = new_path;
     optimal_path.route_simplest = new_path;
-    optimal_path.distance = distance.calculate(global_data, new_path);
+    optimal_path.distance = distance.calculate(data, new_path);
   }
   else
   {
     if(optimal_path.route_simplest.length > new_path.length)
     {
-      optimal_path = new_path;
+      console.log(new_path);
+      optimal_path.route_simplest = new_path;
     }
-    if(optimal_path.distance > distance.calculate(global_data, new_path))
+    
+    if( optimal_path.distance > distance.calculate(data, new_path) )
     {
+      console.log(distance.calculate(data, new_path))
       optimal_path.route_shortest = new_path;
-      optimal_path.distance = distance.calculate(global_data, new_path);
+      optimal_path.distance = distance.calculate(data, new_path);
     }
   }
 }

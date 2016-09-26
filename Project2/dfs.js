@@ -12,10 +12,12 @@ var optimal_path = {
   route_shortest: [ ],
   distance: undefined
 };
+var best_path_to_node = [];
+
 
 function depthFirstSearch(data) {
   var path = [ map.S() ];
-  var stack = map.P(map.S());                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+  var stack = map.P(map.S()).reverse();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
   search_depth_recursive(path, stack, data);
   
   return optimal_path;
@@ -49,9 +51,13 @@ function search_depth_recursive(active_path, search_stack, data) {
       }
       else
       {
-        // Find the possible children states, and add them to the search_stack
-        StackInOrder(search_stack, map.P(active_node));
+        if(A_Star_Verifies(active_path, data))
+        {
+          // Find the possible children states, and add them to the search_stack
+          StackInOrder(search_stack, map.P(active_node));
+        }
       }
+      console.log(active_path)
       search_depth_recursive(active_path.slice(), search_stack, data);
     }
   }
@@ -83,13 +89,36 @@ function CheckNewPathToGoal(new_path, data)
   else
   {
     if(optimal_path.route_simplest.length > new_path.length)
-    {
-      optimal_path = new_path;
+    { 
+      console.log(new_path);
+      optimal_path.route_simplest = new_path;
     }
     if(optimal_path.distance > distance.calculate(data, new_path))
     {
       optimal_path.route_shortest = new_path;
       optimal_path.distance = distance.calculate(data, new_path);
+    }
+  }
+}
+
+function A_Star_Verifies(pathToCheck, data)
+{
+  var node_in_question = pathToCheck[pathToCheck.length - 1];
+  if(best_path_to_node[node_in_question] === undefined)
+  {
+    best_path_to_node[node_in_question] = distance.calculate(data, pathToCheck);
+    return true;
+  }
+  else
+  {
+    if(distance.calculate(data, pathToCheck) < best_path_to_node[node_in_question])
+    {
+      best_path_to_node[node_in_question] = distance.calculate(data, pathToCheck)
+      return true;
+    }
+    else
+    {
+      return false;
     }
   }
 }
