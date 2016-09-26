@@ -32,4 +32,4 @@ if('route_simplest' in best_trial)
 console.log('Optimal distance path found:' + best_trial.route_shortest);
 console.log('Distance required to transverse:' + best_trial.distance);
 
-console.timeEnd(args[0] + ' had an execution time of:');
+console.timeEnd(args[0] + ' had an execution time of');
