@@ -62,8 +62,9 @@ function search_breadth_recursive(unsolved_branches, data) {
           else
           {
             // To avoid infinite loops, only continue on paths with lengths less than the total number of cities in the set.
-            // Additionally, to limit stack size, perform a thinning of data such as that performed by an A* search.
-            if(new_path.length < data.dimension - 1)
+            // Additionally, to limit stack size, new paths are only accepted if they will result in better reaching the next node.
+            if((new_path.length < data.dimension - 1) &&
+               (A_Star_Verifies(new_path, data)))
             {
               next_breadth_level.push(new_path);
             }
@@ -97,6 +98,29 @@ function CheckNewPathToGoal(new_path, data)
       optimal_path.route_shortest = new_path;
       optimal_path.distance = distance.calculate(data, new_path);
     }
+  }
+}
+
+function A_Star_Verifies(pathToCheck, data)
+{
+  var node_in_question = pathToCheck[pathToCheck.length - 1];
+  
+  if(best_path_to_node[node_in_question] === undefined)
+  {
+    best_path_to_node[node_in_question] = {
+      distance: distance.calculate(data, pathToCheck),
+      waypoints: pathToCheck.length
+    }
+    return true;
+  }
+  else
+  {
+    if(distance.calculate(data, pathToCheck) < best_path_to_node[node_in_question].distance)
+    {
+      best_path_to_node[node_in_question].distance = distance.calculate(data, pathToCheck)
+      return true;
+    }
+    return false;
   }
 }
 

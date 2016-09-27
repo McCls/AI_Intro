@@ -21,7 +21,7 @@ var path = concorde.verify(args, active_agent.path());
 // Parse the concorde file and extract the data
 var data = concorde.readFile(path);
 
-console.time(args[0] + ' had an execution time of:')
+console.time(args[0] + ' had an execution time of')
 console.log(data.dimension + ' cities to path. \n')
 var best_trial = active_agent.process(data);
 
