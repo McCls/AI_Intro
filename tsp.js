@@ -1,5 +1,5 @@
-
 var concorde = require('./TSP_utilities/concordeFileReader');
+var html = require('./Html/HtmlWriter');
 var agent = {};
 
 // Locate each of the search agents that could be used
@@ -29,7 +29,16 @@ if('route_simplest' in best_trial)
 {
     console.log('Path with least nodes found:' + best_trial.route_simplest);
 }
-console.log('Optimal distance path found:' + best_trial.route_shortest);
+console.log('Best distance solution found:' + best_trial.route_shortest);
 console.log('Distance required to transverse:' + best_trial.distance);
+
+html.graph(
+    {
+      agent: args[0],
+      file: args[1],
+      data: data.cities,
+      path: best_trial.route_shortest
+    }
+  );
 
 console.timeEnd(args[0] + ' had an execution time of');
