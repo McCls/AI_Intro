@@ -34,10 +34,12 @@ function pathToCyto(path)
     return formattedEdges;
 }
 
-function buildHtml(agent, cities, path)
+function buildHtml(agent, file, cities, path, config)
 {
-    var title = '<title >Hameltonian path generated using' + agent + '</title>';
+    var title = '<title >Path generated using' + agent + '</title>';
     var source = '<script src="../cytoscape.js"></script>';
+    var message = '<h1>Solved ' + file + ' using' + agent + '</h1> \
+                   <h2>Ordered travel list: ' + config.path + '</h2>';
     var page_style = '#cy {width: 100%;height: 100%;position: absolute;top: 0px;left: 0px;}'
     
     var elements = { nodes: cities, edges: path };
@@ -74,7 +76,7 @@ function buildHtml(agent, cities, path)
     
     return '                                                                    \
         <!DOCTYPE html>                                                         \
-        <html><head>' + title + source + '</head>                               \
+        <html><head>' + title + source + message + '</head>                               \
         <style>' + page_style +'</style>                                        \
         <body>' + body + '</body></html>';
 };
@@ -89,7 +91,7 @@ function fileWrite(config)
     var stream = fs.createWriteStream(fileName);
     
     stream.once('open', function(fd) {
-      var html = buildHtml(config.agent, citiesToCyto(config.data), pathToCyto(config.path));
+      var html = buildHtml(config.agent, config.file, citiesToCyto(config.data), pathToCyto(config.path), config);
     
       stream.end(html);
     });

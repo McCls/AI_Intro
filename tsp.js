@@ -29,12 +29,13 @@ if('route_simplest' in best_trial)
 {
     console.log('Path with least nodes found:' + best_trial.route_simplest);
 }
-console.log('Optimal distance path found:' + best_trial.route_shortest);
+console.log('Best distance solution found:' + best_trial.route_shortest);
 console.log('Distance required to transverse:' + best_trial.distance);
 
 html.graph(
     {
       agent: args[0],
+      file: args[1],
       data: data.cities,
       path: best_trial.route_shortest
     }
