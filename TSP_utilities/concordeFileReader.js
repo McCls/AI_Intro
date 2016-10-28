@@ -27,7 +27,7 @@ function verify(args, path) {
   }
   else {
     console.error('No file specified.');
-    process.exit(1)
+    process.exit(1);
   }
 
   console.log('Path recognized as: ' + concordeFilePath);

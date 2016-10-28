@@ -39,7 +39,9 @@ function buildHtml(agent, file, cities, path, config)
     var title = '<title >Path generated using' + agent + '</title>';
     var source = '<script src="../cytoscape.js"></script>';
     var message = '<h1>Solved ' + file + ' using' + agent + '</h1> \
-                   <h2>Ordered travel list: ' + config.path + '</h2>';
+                   <h1>Ordered travel list: ' + config.path + '</h1> \
+                   <h1>Distance to traverse: ' + config.distance + '</h1> \
+                   <h1>Execution time: ' + config.time + ' milliseconds' + '</h1>';
     var page_style = '#cy {width: 100%;height: 100%;position: absolute;top: 0px;left: 0px;}'
     
     var elements = { nodes: cities, edges: path };
@@ -76,7 +78,7 @@ function buildHtml(agent, file, cities, path, config)
     
     return '                                                                    \
         <!DOCTYPE html>                                                         \
-        <html><head>' + title + source + message + '</head>                               \
+        <html><head>' + title + source + message + '</head>                     \
         <style>' + page_style +'</style>                                        \
         <body>' + body + '</body></html>';
 };
