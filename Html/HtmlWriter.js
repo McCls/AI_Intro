@@ -38,11 +38,14 @@ function buildHtml(agent, file, cities, path, config)
 {
     var title = '<title >Path generated using' + agent + '</title>';
     var source = '<script src="../cytoscape.js"></script>';
-    var message = '<h1>Solved ' + file + ' using' + agent + '</h1> \
-                   <h1>Ordered travel list: ' + config.path + '</h1> \
-                   <h1>Distance to traverse: ' + config.distance + '</h1> \
-                   <h1>Execution time: ' + config.time + ' milliseconds' + '</h1>';
-    var page_style = '#cy {width: 100%;height: 100%;position: absolute;top: 0px;left: 0px;}'
+    var message = '<p><font size="4">Solved ' + file + ' using' + agent + '</font></p> \
+                   <p><font size="4">Ordered travel list: ' + config.path + '</font></p> \
+                   <p><font size="4">Distance to traverse: ' + config.distance + '</font></p> \
+                   <p><font size="4">Execution time: ' + config.time + ' milliseconds' + '</font></p>';
+    
+    var page_style = 'header,footer {height: 20%; width: 100%; top: 0; position: absolute; padding: 0; margin: 0; color: white; background-color: black; clear: left; text-align: left;}, \
+                      article {top: 20%; height: 80%; padding: 0; margin: 0; color: white; background-color: black; clear: left; text-align: center;} \
+                      #cy {width: 100%; height: 80%; top: 20%; position: absolute; left: 0px;}'
     
     var elements = { nodes: cities, edges: path };
     var style = [{ 
@@ -77,10 +80,12 @@ function buildHtml(agent, file, cities, path, config)
                 </script>'
     
     return '                                                                    \
-        <!DOCTYPE html>                                                         \
-        <html><head>' + title + source + message + '</head>                     \
+        <!DOCTYPE html><html>                                                         \
         <style>' + page_style +'</style>                                        \
-        <body>' + body + '</body></html>';
+        <body>  \
+            <header>' + title + source + message + '</header>                     \
+            <article>' + body + '</article> \
+        </body></html>';
 };
 
 

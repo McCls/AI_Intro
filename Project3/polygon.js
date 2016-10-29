@@ -164,8 +164,8 @@ function FindNearestNode(path, available_nodes, data)
   
   // To ensure that the initial minimum is calculated as a clockwise, outward
   //    facing distance, we must check both sides of the initial edge
-  var side1_cost = CostToInclude([path[0], path[1]], available_nodes[0], data)
-  var side2_cost = CostToInclude([path[1], path[0]], available_nodes[0], data)
+  var side1_cost = CostToInclude(least_costly_expansion.source_edge, available_nodes[0], data)
+  var side2_cost = CostToInclude(least_costly_expansion.source_edge.reverse(), available_nodes[0], data)
   var minimum_cost;
   
   if(side1_cost >= 0)
@@ -176,8 +176,12 @@ function FindNearestNode(path, available_nodes, data)
   {
     minimum_cost = side2_cost;
   }
-  
-  console.log('We would default');
+  else
+  {
+    var new_edge = least_costly_expansion.source_edge.slice();
+    new_edge.splice(1, 0, least_costly_expansion.target_node);
+    minimum_cost = distance.calculate(data, new_edge) - distance.calculate(data, least_costly_expansion.source_edge);
+  }
   
   for(var i = 0; i < path.length - 1; i ++)
   {
@@ -194,13 +198,8 @@ function FindNearestNode(path, available_nodes, data)
         }
         minimum_cost = edge_to_node_cost;
       }
-      else if(edge_to_node_cost > 0)
-      {
-        console.log("Adding: "+available_nodes[node]+ " was beaten with cost of: "+edge_to_node_cost)
-      }
     }
   }
-  console.log("Winner for this round was: "+available_nodes[node]+' winning with cost: '+edge_to_node_cost)
   return least_costly_expansion
 }
 
@@ -284,9 +283,11 @@ function PerpendicularCost(source_edge, target_node, data)
     y: y3 - y1
   }
   
+  var projection = ((unit_vector.x * target_vector.x) + (unit_vector.y * target_vector.y));
+  
   // The distance to the point is the dot product of the unit vector and the 
   //    vector to the target node
-  return Math.abs(((unit_vector.x * target_vector.x) + (unit_vector.y * target_vector.y)));
+  return Math.abs();
 }
 
 function RemoveNodes(cities, edge)
