@@ -2,8 +2,9 @@ var concordeFilePath;
 
 module.exports = {
   verify: verify,
-
-  readFile: readFile
+  readFile: readFile,
+  extractX: getX,
+  extractY: getY
 }
 
 function verify(args, path) {
@@ -91,3 +92,23 @@ function readFile(path) {
 var throwError = function(message) {
   console.error('Failure to parse concorde file. Error: ' + message.toString());
 };
+
+function getX(cityId, data)
+{
+  var cityIndex = cityId - 1;
+  if(cityId != data.cities[cityIndex][0])
+  {
+    console.error("Data not formatted correctly")
+  }
+  return data.cities[cityIndex][1];
+}
+
+function getY(cityId, data)
+{
+  var cityIndex = cityId - 1;
+  if(cityId != data.cities[cityIndex][0])
+  {
+    console.error("Data not formatted correctly");
+  }
+  return data.cities[cityIndex][2];
+}
