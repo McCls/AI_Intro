@@ -6,13 +6,13 @@ var agent = {};
 agent['brute'] = require('./Project1/brute');
 agent['bfs'] = require('./Project2/bfs.js');
 agent['dfs'] = require('./Project2/dfs.js');
+agent['nearest'] = require('./Project3/nearest.js');
 agent['polygon'] = require('./Project3/polygon.js');
 
 // Process the user input data, and select the appropriate agent if that agent exists
 var args = process.argv.slice(2);
-if(!((args[0]) in agent))
-{
-  console.error('Unknown search agent:' + args[0] +'. Terminating process.');
+if (!((args[0]) in agent)) {
+  console.error('Unknown search agent:' + args[0] + '. Terminating process.');
 }
 console.log('Searching using \'' + args[0] + '\' agent');
 var active_agent = agent[(args[0])];
@@ -33,22 +33,18 @@ console.timeEnd(args[0] + ' had an execution time of');
 var ending_time = Date.now();
 
 // Based on the data returned, report the results
-if('route_simplest' in best_trial)
-{
-    console.log('Path with least nodes found:' + best_trial.route_simplest);
+if ('route_simplest' in best_trial) {
+  console.log('Path with least nodes found:' + best_trial.route_simplest);
 }
 console.log('Best distance solution found:' + best_trial.route_shortest);
 console.log('Distance required to transverse:' + best_trial.distance);
 
 // Graph the results in a cyctoscape html file found in the Html/Output folder
-html.graph(
-    {
-      agent: args[0],
-      file: args[1],
-      data: data.cities,
-      path: best_trial.route_shortest,
-      time: ending_time - beginning_time,
-      distance: best_trial.distance
-    }
-  );
-
+html.graph({
+  agent: args[0],
+  file: args[1],
+  data: data.cities,
+  path: best_trial.route_shortest,
+  time: ending_time - beginning_time,
+  distance: best_trial.distance
+});

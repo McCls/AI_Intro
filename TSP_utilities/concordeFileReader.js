@@ -5,7 +5,7 @@ module.exports = {
   readFile: readFile,
   extractX: getX,
   extractY: getY
-}
+};
 
 function verify(args, path) {
 
@@ -33,23 +33,23 @@ function verify(args, path) {
 
   console.log('Path recognized as: ' + concordeFilePath);
   return concordeFilePath;
-};
+}
 
 function verifyFileExists(pathToTest) {
   try {
     require("fs").accessSync(pathToTest);
     console.log('File found. Ready to parse.');
-  }catch(e){
+  }
+  catch (e) {
     console.error('File not found. Check spelling and verify that file is located in the \'assignment-files\' folder for the agent being used.');
     process.exit(1);
   }
-};
+}
 
 function readFile(path) {
   var fs = require('fs');
   console.log('Parsing data from: ' + path);
   var array = fs.readFileSync(path).toString().split("\n");
-  var line;
   var concordeData = {
     name: {},
     dimension: {},
@@ -58,7 +58,7 @@ function readFile(path) {
 
   // Check name
   var name = array[0].split(' ');
-  if ( name[0] === 'NAME:') {
+  if (name[0] === 'NAME:') {
     concordeData.name = name[1];
   }
   else {
@@ -67,7 +67,7 @@ function readFile(path) {
 
   // Check dimension
   var dimension = array[4].split(' ');
-  if ( dimension[0] === 'DIMENSION:') {
+  if (dimension[0] === 'DIMENSION:') {
     concordeData.dimension = parseFloat(dimension[1]);
   }
   else {
@@ -87,27 +87,23 @@ function readFile(path) {
   }
 
   return concordeData;
-};
+}
 
 var throwError = function(message) {
   console.error('Failure to parse concorde file. Error: ' + message.toString());
 };
 
-function getX(cityId, data)
-{
+function getX(cityId, data) {
   var cityIndex = cityId - 1;
-  if(cityId != data.cities[cityIndex][0])
-  {
-    console.error("Data not formatted correctly")
+  if (cityId != data.cities[cityIndex][0]) {
+    console.error("Data not formatted correctly");
   }
   return data.cities[cityIndex][1];
 }
 
-function getY(cityId, data)
-{
+function getY(cityId, data) {
   var cityIndex = cityId - 1;
-  if(cityId != data.cities[cityIndex][0])
-  {
+  if (cityId != data.cities[cityIndex][0]) {
     console.error("Data not formatted correctly");
   }
   return data.cities[cityIndex][2];
