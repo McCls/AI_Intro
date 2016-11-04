@@ -1,9 +1,10 @@
-var distance = require('../TSP_utilities/pathCalculator.js')
+var distance = require('../TSP_utilities/pathCalculator.js');
+var verify = require('../TSP_utilities/verify.js');
 
 module.exports = {
   process: polygonal_expansion,
   path: path
-}
+};
 
 // Global variables to store values while in recursive function.
 var optimal_path = {
@@ -51,10 +52,10 @@ function MinMaxRandExpansion(cities, data)
   
   console.log('Longest edge: ' + starting_edges.longest)
   paths['longest'] = ExpandPolygon(starting_edges.longest, cities, data);
-  console.log('Shortest edge: ' + starting_edges.shortest)
-  paths['shortest'] = ExpandPolygon(starting_edges.shortest, cities, data);
-  console.log('Random edge: ' + starting_edges.random)
-  paths['random'] = ExpandPolygon(starting_edges.random, cities, data);
+  // console.log('Shortest edge: ' + starting_edges.shortest)
+  // paths['shortest'] = ExpandPolygon(starting_edges.shortest, cities, data);
+  // console.log('Random edge: ' + starting_edges.random)
+  // paths['random'] = ExpandPolygon(starting_edges.random, cities, data);
   
   var distances = {};
   for (var path in paths)
@@ -62,28 +63,28 @@ function MinMaxRandExpansion(cities, data)
     distances[path] = distance.calculate(data, paths[path]);
   }
   
-  // Check if the path produced by the longest seeded edge is best
-  if(( distances.longest <= distances.shortest ) &&
-    ( distances.longest <= distances.random))
-  {
+  // // Check if the path produced by the longest seeded edge is best
+  // if(( distances.longest <= distances.shortest ) &&
+  //   ( distances.longest <= distances.random))
+  // {
     console.log("Using path generated from longest edge seed.")
     optimal_path.route_shortest = paths.longest;
     optimal_path.distance = distances.longest;
-  }
-  // Check if the path produced by the shortest seeded edge is best
-  else if( distances.shortest <= distances.random )
-  {
-    console.log("Using path generated from shortest edge seed.")
-    optimal_path.route_shortest = paths.shortest;
-    optimal_path.distance = distances.shortest;
-  }
-  // Process of elimination leaves us with the path from the random seeded edge
-  else
-  {
-    console.log("Using path generated from random edge seed.")
-    optimal_path.route_shortest = paths.random;
-    optimal_path.distance = distances.random;
-  }
+  // }
+  // // Check if the path produced by the shortest seeded edge is best
+  // else if( distances.shortest <= distances.random )
+  // {
+  //   console.log("Using path generated from shortest edge seed.")
+  //   optimal_path.route_shortest = paths.shortest;
+  //   optimal_path.distance = distances.shortest;
+  // }
+  // // Process of elimination leaves us with the path from the random seeded edge
+  // else
+  // {
+  //   console.log("Using path generated from random edge seed.")
+  //   optimal_path.route_shortest = paths.random;
+  //   optimal_path.distance = distances.random;
+  // }
 }
 
 function FindStartEdges(cities, data)
@@ -148,8 +149,16 @@ function ExpandPolygon(initial_edge, cities, data)
   while(available_nodes.length > 0)
   {
     section_to_expand = FindNearestNode(path, available_nodes, data);
-    RemoveNodes(available_nodes, [section_to_expand.target_node])
-    InsertNode(path, section_to_expand); console.log('Added node: '+section_to_expand.target_node + ' to edge: ' + section_to_expand.source_edge)
+    RemoveNodes(available_nodes, [section_to_expand.target_node]);
+    InsertNode(path, section_to_expand); console.log('Added node: '+section_to_expand.target_node + ' to edge: ' + section_to_expand.source_edge + " with distance: " + section_to_expand.distance);
+    var newEdge1_Intersection = verify.noCross([section_to_expand.source_edge[0], section_to_expand.target_node], path, data);
+    var newEdge2_Intersection = verify.noCross([section_to_expand.target_node, section_to_expand.source_edge[1]], path, data);
+    if((newEdge1_Intersection.found == true) ||
+       (newEdge2_Intersection.found == true))
+    {
+      console.log("Intersection detected when adding node: " + section_to_expand.target_node + ' to edge: ' + section_to_expand.source_edge);
+      break;
+    }
   }
 
   return path
@@ -160,6 +169,7 @@ function FindNearestNode(path, available_nodes, data)
   var least_costly_expansion = {
     source_edge: [path[0], path[1]],
     target_node: available_nodes[0],
+    distance: EdgeToPointCost([path[0], path[1]], available_nodes[0], data)
   }
   
   // To ensure that the initial minimum is calculated as a clockwise, outward
@@ -172,15 +182,9 @@ function FindNearestNode(path, available_nodes, data)
   {
     minimum_cost = side1_cost;
   }
-  else if(side2_cost >= 0)
-  {
-    minimum_cost = side2_cost;
-  }
   else
   {
-    var new_edge = least_costly_expansion.source_edge.slice();
-    new_edge.splice(1, 0, least_costly_expansion.target_node);
-    minimum_cost = distance.calculate(data, new_edge) - distance.calculate(data, least_costly_expansion.source_edge);
+    minimum_cost = side2_cost;
   }
   
   for(var i = 0; i < path.length - 1; i ++)
@@ -191,6 +195,8 @@ function FindNearestNode(path, available_nodes, data)
       var selected_node = available_nodes[node];
       var edge_to_node_cost = EdgeToPointCost(selected_edge, selected_node, data);
       
+      console.log("Pathing: " + [path[i], path[i+1]] + ' to ' + selected_node + ' costs: ' + edge_to_node_cost);
+      
       // If we recieve an invalid cost, ignore it
       if(edge_to_node_cost >= 0)
       {
@@ -200,6 +206,7 @@ function FindNearestNode(path, available_nodes, data)
           least_costly_expansion.target_node = selected_node;
           
           minimum_cost = edge_to_node_cost;
+          least_costly_expansion.distance = minimum_cost;
         }
         else if(edge_to_node_cost == minimum_cost)
         {
@@ -209,6 +216,7 @@ function FindNearestNode(path, available_nodes, data)
             least_costly_expansion.target_node = selected_node;
             
             minimum_cost = edge_to_node_cost;
+            least_costly_expansion.distance = minimum_cost;
           }
         }
       }
@@ -242,14 +250,18 @@ function EdgeToPointCost(source_edge, target_node, data)
   var y3 = data.cities[target_node - 1][2];
   
   // Edge's parallel vector
-  var parallel_vector = [x2 - x1, y2 - y1]
+  var parallel_vector = 
+  {
+    x: x2 - x1, 
+    y: y2 - y1
+  }
   
   // Edge's perpendicular vector
-  var perpendicular_vector = [(y2 - y1), -(x2 - x1)]
-  
-  // Make it an actual unit vector by scaling it by its inverse magnitude
-  parallel_vector = parallel_vector.map(function(x) { return (x / magnitude); });
-  perpendicular_vector = perpendicular_vector.map(function(x) { return (x / magnitude); });;
+  var perpendicular_vector = 
+  {
+    x: y2 - y1,
+    y: -(x2 - x1)
+  }
   
   // Vector to target node (from the center of the edge)
   var target_vector = {
@@ -258,8 +270,8 @@ function EdgeToPointCost(source_edge, target_node, data)
   }
   
   // Find the components of the magnitude that are parallel and perpendicualr to the source edge
-  var component_parallel = ((parallel_vector[0] * target_vector[0]) + (parallel_vector[1] * target_vector[1]));
-  var component_perpendicular = ((perpendicular_vector[0] * target_vector[0]) + (perpendicular_vector[1] * target_vector[1]));
+  var component_parallel = ((parallel_vector.x * target_vector.x) + (parallel_vector.y * target_vector.y)) / magnitude;
+  var component_perpendicular = ((perpendicular_vector.x * target_vector.x) + (perpendicular_vector.y * target_vector.y)) / magnitude;
 
   var cost;
   if(component_perpendicular < 0)
