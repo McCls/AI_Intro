@@ -143,16 +143,16 @@ function ExpandPolygon(initial_edge, cities, data)
   {
     source_edge: [],
     target_node: []
-  }
+  };
   
   while(available_nodes.length > 0)
   {
     section_to_expand = FindNearestNode(path, available_nodes, data);
-    RemoveNodes(available_nodes, [section_to_expand.target_node])
-    InsertNode(path, section_to_expand); console.log('Added node: '+section_to_expand.target_node)
+    RemoveNodes(available_nodes, [section_to_expand.target_node]);
+    InsertNode(path, section_to_expand);
   }
 
-  return path
+  return path;
 }
 
 function FindNearestNode(path, available_nodes, data)
@@ -160,12 +160,12 @@ function FindNearestNode(path, available_nodes, data)
   var least_costly_expansion = {
     source_edge: [path[0], path[1]],
     target_node: available_nodes[0],
-  }
+  };
   
   // To ensure that the initial minimum is calculated as a clockwise, outward
   //    facing distance, we must check both sides of the initial edge
-  var side1_cost = CostToInclude(least_costly_expansion.source_edge, available_nodes[0], data)
-  var side2_cost = CostToInclude(least_costly_expansion.source_edge.reverse(), available_nodes[0], data)
+  var side1_cost = CostToInclude(least_costly_expansion.source_edge, available_nodes[0], data);
+  var side2_cost = CostToInclude(least_costly_expansion.source_edge.reverse(), available_nodes[0], data);
   var minimum_cost;
   
   if(side1_cost >= 0)
@@ -195,12 +195,13 @@ function FindNearestNode(path, available_nodes, data)
         {
           source_edge: [path[i], path[i+1]],
           target_node: available_nodes[node],
-        }
+        };
+        
         minimum_cost = edge_to_node_cost;
       }
     }
   }
-  return least_costly_expansion
+  return least_costly_expansion;
 }
 
 function CostToInclude(source_edge, target_node, data)
@@ -221,18 +222,18 @@ function CostToInclude(source_edge, target_node, data)
   var prependicular_vector = {
     x: (y2 - y1),
     y: -(x2 - x1)
-  }
+  };
   
   // Vector to target node
   var target_vector = {
     x: x3 - x1,
     y: y3 - y1
-  }
+  };
   
   // Normally, to get an acurate component measure, we would divide by the 
   //    magnitude of the perpendicular vector. In this case, we only care that
   //    the component is positive, and that we are expanding outwards.
-  var vector_component = (prependicular_vector.x * target_vector.x) + (prependicular_vector.y * target_vector.y)
+  var vector_component = (prependicular_vector.x * target_vector.x) + (prependicular_vector.y * target_vector.y);
   
   if(vector_component > 0)
   {
@@ -251,43 +252,6 @@ function CostToInclude(source_edge, target_node, data)
     //    the expansion is invalid
     return -1;
   }
-}
-
-function PerpendicularCost(source_edge, target_node, data)
-{
-  // The cost to include the point is calculated as the perpendicular distance 
-  //    from the edge of nodes 1 and 2 to the target node 3.
-  // Note: Since the city numbers start at 1 we must subtract 1 to get the index
-  var x1 = data.cities[source_edge[0] - 1][1];
-  var y1 = data.cities[source_edge[0] - 1][2];
-  
-  var x2 = data.cities[source_edge[1] - 1][1];
-  var y2 = data.cities[source_edge[1] - 1][2];
-  
-  var x3 = data.cities[target_node - 1][1];
-  var y3 = data.cities[target_node - 1][2];
-  
-  // Edge's perpendicular vector
-  var unit_vector = {
-    x: y2 - y1,
-    y: -(x2 - x1)
-  }
-  // Make it an actual unit vector by scaling it by its inverse magnitude
-  var magnitude = Math.sqrt(Math.pow(unit_vector.x, 2) + Math.pow(unit_vector.y, 2));
-  unit_vector.x = unit_vector.x / magnitude;
-  unit_vector.y = unit_vector.y / magnitude;
-  
-  // Vector to target node
-  var target_vector = {
-    x: x3 - x1,
-    y: y3 - y1
-  }
-  
-  var projection = ((unit_vector.x * target_vector.x) + (unit_vector.y * target_vector.y));
-  
-  // The distance to the point is the dot product of the unit vector and the 
-  //    vector to the target node
-  return Math.abs();
 }
 
 function RemoveNodes(cities, edge)

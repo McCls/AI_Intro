@@ -43,7 +43,7 @@ function buildHtml(agent, file, cities, path, config)
                    <p><font size="4">Distance to traverse: ' + config.distance + '</font></p> \
                    <p><font size="4">Execution time: ' + config.time + ' milliseconds' + '</font></p>';
     
-    var page_style = 'header,footer {height: 20%; width: 100%; top: 0; position: absolute; padding: 0; margin: 0; color: white; background-color: black; clear: left; text-align: left;}, \
+    var page_style = 'header,footer {width: 100%; top: 0; position: absolute; padding: 0 3px; margin: 0; color: white; background-color: black; clear: left; text-align: left;}, \
                       article {top: 20%; height: 80%; padding: 0; margin: 0; color: white; background-color: black; clear: left; text-align: center;} \
                       #cy {width: 100%; height: 80%; top: 20%; position: absolute; left: 0px;}'
     
