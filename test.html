@@ -4,49 +4,48 @@
     <head>
         <style>
             .container {
+                height: 100%;
                 width: 100%;
-                border: 1px solid gray;
+                border: 0px solid gray;
             }
             
             header{
-                padding: 1em;
+                height: 100px;
+                top:0;
+                padding: .5rem;
                 color: white;
                 background-color: black;
-                clear: left;
                 text-align: center;
             }
             
             footer {
                 position: absolute;
                 right: 0;
-                bottom: 0;
+                bottom: 0px;
                 left: 0;
                 padding: 1rem;
-                background-color: #efefef;
+                color: white;
+                background-color: black;
                 text-align: center;
+                max-height: 50px;
             }
             
             nav {
+                margin-top: 100px;
                 float: left;
                 max-width: 160px;
-                margin: 0;
-                padding: 1em;
+                height: 100%;
             }
             
-            nav ul {
-                list-style-type: none;
-                padding: 0;
-            }
-               
-            nav ul a {
-                text-decoration: none;
-            }
-            
-            aside {
-                margin-left: 170px;
+            article {
+                top: 0;
+                bottom: 0;
+                margin-top: 100px;
+                margin-left: 160px;
+                margin-bottom: -150px;
+                border-top: 1px solid gray;
                 border-left: 1px solid gray;
-                padding: 1em;
-                height: 100vh;
+                /*height: 100%;*/
                 overflow: hidden;
             }
 
@@ -60,18 +59,18 @@
     <body>
         <div class="container">
             <header>
-                <title>Widsom of Crowds for TSP</title>
-                <h1>Wisdom of Crowds Aggregate TSP Solver</h1>
-                
-                
+                <title>WoC for TSP</title>
+                Wisdom of Crowds Aggregate TSP Solver
             </header>
               
-                <nav>
-                    <select id="selectableFiles"></select>
-                    <script type="text/javascript"></script>
-                </nav>
+            <nav>
+                Select File:
+                <br>
+                <select id="selectableFiles"></select>
+                <script type="text/javascript"></script>
+            </nav>
             
-            <aside><div id="cy"></div></aside>
+            <article id="cy"></div></article>
         
             <footer>By: Christopher McClure - Format from: W3Schools.com</footer>
         </div>

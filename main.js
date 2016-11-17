@@ -15,9 +15,9 @@ var cy = cytoscape({
         "selector": "node",
         "style": {
             "label": "data(id)",
-            "font-size": 3,
-            "height": 3,
-            "width": 3,
+            "font-size": 2,
+            "height": 2,
+            "width": 2,
             "background-color": "#0033A0"
         }
     }, {
