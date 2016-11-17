@@ -1,6 +1,10 @@
+var fs = require('fs');
 var concordeFilePath;
 
 module.exports = function(fileName)
+{
+  concordeFilePath = './Project4/assignment-file/' + fileName;
+}
 
 function verify(args, path) {
 
