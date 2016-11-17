@@ -4,3 +4,12 @@
 [submodule "getting-started/cytoscape.js"]
 	path = getting-started/cytoscape.js
 	url = https://github.com/cytoscape/cytoscape.js
+[submodule "jstat"]
+	path = jstat
+	url = https://github.com/jstat/jstat.git
+[submodule "rgraph"]
+	path = rgraph
+	url = https://github.com/mhammiche/rgraph.git
+[submodule "requirejs"]
+	path = requirejs
+	url = https://github.com/requirejs/requirejs.git

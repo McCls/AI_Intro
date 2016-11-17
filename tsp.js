@@ -46,5 +46,6 @@ html.graph({
   data: data.cities,
   path: best_trial.route_shortest,
   time: ending_time - beginning_time,
-  distance: best_trial.distance
+  distance: best_trial.distance,
+  output_path: './Html/Output/'
 });
