@@ -2,14 +2,28 @@ var crossover_size;
 
 function transcribe(core_dna, cross_dna, check_dna, crossover_point)
 {
-    for(var strand in cross_dna)
+    for(var strand = 0; strand< cross_dna.length; strand++)
     {
-        var index = core_dna.findIndex( function FindMatching(element) { return element == cross_dna[strand]; } );
-        if(!( index <= 0 ))
+        var core_index = core_dna.findIndex( function FindMatching(element) { return element == cross_dna[strand]; } );
+        // If the core section of data would have a duplicate value
+        if(core_index > 0 )
         {
-            core_dna[index] = check_dna[strand];
+            var cross_index = cross_dna.findIndex(function FindMatching(element) { return element == check_dna[strand]; });
+            // Replace the duplicate
+            if(cross_index < 0)
+            {
+                // Replace the duplicate value with a node that was completely removed
+                core_dna[core_index] = check_dna[strand];
+            }
+            else
+            {
+                // The check value that would normally be used results in another duplicate
+                var non_duplicate = find_non_duplicate(cross_dna, check_dna, cross_index);
+                core_dna[core_index] = non_duplicate;
+            }
         }
     }
+    
     // Now that data has been validated, re-insert the swapped portion.
     core_dna.splice.apply(core_dna, [crossover_point, 0].concat(cross_dna));
     return core_dna;
@@ -33,7 +47,10 @@ function crossover(path1, path2)
     
     // Validate the paths and remove duplicates, then insert the crossover sections
     var child1 = transcribe(parent1, crossover1, crossover2, crossover_point);
+    // validate_path(path2,path1,child1);
     var child2 = transcribe(parent2, crossover2, crossover1, crossover_point);
+    // validate_path(path1,path2,child2);
+
 
     return [child1, child2];
 }
@@ -53,3 +70,51 @@ module.exports = function (genes_to_cross)
     
     return crossover;
 };
+
+function find_non_duplicate(cross, check, strand)
+{
+    console.log('trying index: '+strand);
+    var cross_index = cross.findIndex(function(element){return element == check[strand]});
+    if(cross_index < 0)
+    {
+        return check[strand];
+    }
+    else
+    {
+        return find_non_duplicate(cross, check, cross_index);
+    }
+}
+
+
+// function validate_path(parent1, parent2, child)
+// {
+//     var tisk_tisk = false;
+//     var visited = [];
+//     for(var gene=0; gene < child.length - 1; gene++)
+//     {
+//         if(0 < visited.findIndex(function(element){return element == child[gene]}))
+//         {
+//             tisk_tisk = true;
+//             var stringer1 = '';
+//             var stringer2 = '';
+//             var stringer3 = '';
+            
+//             for(var node = 0; node < child.length - 1; node++)
+//             {
+//                 stringer1 = stringer1 + parent1[node] + ', ';
+//                 stringer2 = stringer2 + parent2[node] + ', ';
+//                 stringer3 = stringer3 + child[node] + ', ';
+//             }
+//             console.log('Repeating node is: ' + child[gene] + ' at ' + gene)
+//             console.log('parent1: ' + stringer1);
+//             console.log('parent2: ' + stringer2);
+//             console.log('child:   ' + stringer3);
+//             console.stop('child:   ' + stringer3);
+//             break;
+//         }
+//         else
+//         {
+//             visited.push(child[gene]);
+//         }
+//     }
+// }

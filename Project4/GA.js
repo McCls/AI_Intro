@@ -1,4 +1,4 @@
-var distance = require('../TSP_utilities/pathCalculator.js');
+var distance = require('./tools/distance.js');
 
 var population;
 var configuration;
@@ -16,17 +16,27 @@ function run(concorde_data)
   population = configuration.populate(configuration.population, data.dimension);
   
   initialize_populace(population);
+  var history = [];
   
   for(var rep = 0; rep < configuration.generations; rep++)
   {
+    console.log('generation: '+(rep+1));
     var children = generate_children();
     integrateIntoPopulace(children);
     population.sort( function(a,b) { return a[1] - b[1] })
     cullThePopulation();
     diversifyUsingMutation();
+    history.push(population[0][1])
   }
+  population.sort( function(a,b) { return a[1] - b[1] })
   
-  return population;
+  console.log(JSON.stringify(population[4]));
+  console.log(JSON.stringify(population[3]));
+  console.log(JSON.stringify(population[2]));
+  console.log(JSON.stringify(population[1]));
+  console.log(JSON.stringify(population[0]));
+  
+  return {results: population, logs: history};
 }
 
 function initialize_populace()
@@ -40,12 +50,12 @@ function initialize_populace()
 function generate_children() {
   var parents = population.map(function(value,index) { return index; });
   var children = [];
-  while(parents.length >= 2)
+  while(children.length < configuration.reproduce.number)
   {
     var parent1 = parents.splice(random_person(parents), 1);
     var parent2 = parents.splice(random_person(parents), 1);
     
-    var offspring = configuration.reproduce(population[parent1][0], population[parent2][0]);
+    var offspring = configuration.reproduce.method(population[parent1][0], population[parent2][0]);
     for(var child = 0; child < offspring.length; child++)
     {
       children.push(offspring[child]);
@@ -66,19 +76,24 @@ function integrateIntoPopulace(children)
   {
     // Innocent until proven guilty
     var is_a_clone = false;
-    for(var person = 0; person < population; person++) 
+    var route_length = distance.calculate(data, children[child]);
+    for(var person = 0; person < population.length; person++) 
     {
-      if (JSON.stringify(children[child]) == JSON.stringify(population[person][0]))
+      if (route_length == population[person][1])
       {
-        // Don't trust the clones.
-        is_a_clone = true;
-        break;
+        console.log("CLONE CLONE KILL THE CLONE");
+        if(children[child].toString() == population[person].toString())
+        {
+          // Don't trust the clones.
+          is_a_clone = true;
+          break;
+        }
       }
     }
       
     if(is_a_clone == false)
     {
-      var new_entry = [children[child], distance.calculate(data, children[child])];
+      var new_entry = [children[child], route_length];
       population.push(new_entry);
     }
   }
@@ -86,33 +101,23 @@ function integrateIntoPopulace(children)
 
 function BasedOnPathLength(a,b)
 {
-  if(a.distance > b.distance)
-  {
-    return 1;
-  }
-  else if(b.distance > a.distance)
-  {
-    return -1;
-  }
-  else
-  {
-    return 0;
-  }
+  if(a.distance > b.distance) { return 1; }
+  else if(b.distance > a.distance) { return -1; }
+  else { return 0; }
 }
 
 function cullThePopulation()
 {
-  while(population.length > configuration.population) 
-  {
-    population.pop();
-  }
+  while(population.length > configuration.population) { population.pop(); }
 }
 
 function diversifyUsingMutation()
 {
   for(var mutants = 0; mutants < configuration.mutate.number; mutants++)
   {
-    configuration.mutate.method(population[random_non_elite()][0]);
+    var mutant = random_non_elite();
+    configuration.mutate.method(population[mutant][0]);
+    population[mutant][1] = distance.calculate(data, population[mutant][0]);
   }
 }
 

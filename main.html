@@ -6,13 +6,15 @@
             .container {
                 height: 100%;
                 width: 100%;
-                border: 0px solid gray;
+                border: 1px solid gray;
             }
             
             header{
+                position:absolute;
                 height: 100px;
                 top:0;
-                padding: .5rem;
+                right: 0;
+                left: 0;
                 color: white;
                 background-color: black;
                 text-align: center;
@@ -23,11 +25,10 @@
                 right: 0;
                 bottom: 0px;
                 left: 0;
-                padding: 1rem;
                 color: white;
                 background-color: black;
                 text-align: center;
-                max-height: 50px;
+                height: 50px;
             }
             
             nav {
@@ -38,44 +39,64 @@
             }
             
             article {
+                position: absolute;
                 top: 0;
                 bottom: 0;
+                right: 0;
+                left: 0;
                 margin-top: 100px;
                 margin-left: 160px;
-                margin-bottom: -150px;
+                margin-bottom: 350px;
                 border-top: 1px solid gray;
                 border-left: 1px solid gray;
-                /*height: 100%;*/
+                border-bottom: 1px solid gray;
+                overflow: hidden;
+            }
+            
+            section {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                height: 300px;
+                margin-left: 160px;
+                margin-bottom: 50px;
+                border-top: 1px solid gray;
+                border-left: 1px solid gray;
+                border-bottom: 1px solid gray;
                 overflow: hidden;
             }
 
-            #cy {
-                position: absolute;
-                height: 100%;
-                width: 100%;
-            }
         </style>
     </head>
     <body>
         <div class="container">
             <header>
                 <title>WoC for TSP</title>
-                Wisdom of Crowds Aggregate TSP Solver
+                <h1>Wisdom of Crowds Aggregate TSP Solver</h>
             </header>
               
             <nav>
                 Select File:
                 <br>
-                <select id="selectableFiles"></select>
+                <select id="selectableFiles">
+                    <option value="Random5" selected="selected">Random5.tsp</option>
+                    <option value="Random10">Random10.tsp</option>
+                    <option value="Random12">Random12.tsp</option>
+                    <option value="Random30">Random30.tsp</option>
+                    <option value="Random100">Random100.tsp</option>
+                </select>
                 <script type="text/javascript"></script>
+                <br>
+                <button value="RUN" id="run" value="Run">Run Genetic</button>
             </nav>
             
-            <article id="cy"></div></article>
+            <section id="log"></section>
+            <article id="results"></article>
+            <article id="cy"></article>
         
-            <footer>By: Christopher McClure - Format from: W3Schools.com</footer>
+            <footer><br>By: Christopher McClure - Format from: W3Schools.com</footer>
         </div>
-        
         <script src="bundle.js"></script>
-        <!--<script src="main.js"></script>-->
     </body>
 </html>

@@ -1,11 +1,13 @@
 "use strict";
 
-var R = require('ramda');
+
+var readConcorde = require('./Project4/assignment-files/concordeFileReader.js');
+var calc_dist = require('./Project4/tools/distance.js');
 var cytoscape = require('./Project4/tools/cytoscape.js');
+var configuration = require('./Project4/configuration.js');
+var GA_Init = require('./Project4/GA.js');
 
-var square = function square (x) { return x * x; }  
-var squares = R.chain(square, [1, 2, 3, 4, 5]); 
-
+// Initialize the cytoscape graph
 var cy = cytoscape({
     container: document.getElementById('cy'),
     layout: {
@@ -32,175 +34,68 @@ var cy = cytoscape({
         }
     }],
     elements: {
-        "nodes": [{
-            "data": {
-                "id": 1
-            },
-            "position": {
-                "x": 25.816993,
-                "y": 74.261603
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 2
-            },
-            "position": {
-                "x": 32.352941,
-                "y": 77.42616
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 3
-            },
-            "position": {
-                "x": 34.477124,
-                "y": 73.839662
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 4
-            },
-            "position": {
-                "x": 35.702614,
-                "y": 59.2827
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 5
-            },
-            "position": {
-                "x": 29.084967,
-                "y": 52.109705
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 6
-            },
-            "position": {
-                "x": 21.650327,
-                "y": 58.016878
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 7
-            },
-            "position": {
-                "x": 22.46732,
-                "y": 64.556962
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 8
-            },
-            "position": {
-                "x": 28.676471,
-                "y": 76.160338
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 9
-            },
-            "position": {
-                "x": 31.862745,
-                "y": 55.274262
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 10
-            },
-            "position": {
-                "x": 25.571895,
-                "y": 53.164557
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 11
-            },
-            "position": {
-                "x": 24.183007,
-                "y": 69.198312
-            },
-            "locked": true
-        }, {
-            "data": {
-                "id": 12
-            },
-            "position": {
-                "x": 29.820261,
-                "y": 65.822785
-            },
-            "locked": true
-        }],
-        "edges": [{
-            "data": {
-                "source": 1,
-                "target": 8
-            }
-        }, {
-            "data": {
-                "source": 8,
-                "target": 2
-            }
-        }, {
-            "data": {
-                "source": 2,
-                "target": 3
-            }
-        }, {
-            "data": {
-                "source": 3,
-                "target": 12
-            }
-        }, {
-            "data": {
-                "source": 12,
-                "target": 4
-            }
-        }, {
-            "data": {
-                "source": 4,
-                "target": 9
-            }
-        }, {
-            "data": {
-                "source": 9,
-                "target": 5
-            }
-        }, {
-            "data": {
-                "source": 5,
-                "target": 10
-            }
-        }, {
-            "data": {
-                "source": 10,
-                "target": 6
-            }
-        }, {
-            "data": {
-                "source": 6,
-                "target": 7
-            }
-        }, {
-            "data": {
-                "source": 7,
-                "target": 11
-            }
-        }, {
-            "data": {
-                "source": 11,
-                "target": 1
-            }
-        }]
+        "nodes": [],
+        "edges": []
     }
 });
+
+// Initialize the Run Button
+var run_button = document.getElementById('run');
+run_button.onclick = function() {
+    cy.nodes().remove();
+    cy.edges().remove();
+    
+    run_button.disabled = true;
+    
+    display('working');
+    var list = document.getElementById("selectableFiles");
+    var data = readConcorde(list.options[list.selectedIndex].value);
+    
+    // Start a timer to measure algorithm execution time.
+    var beginning_time = Date.now();
+    
+    // Initialize a configuration for the genetic algorithm
+    var settings = configuration.GetConfig(data.dimension);
+    
+    // Create a genetric algorithm using this configuration data
+    var GA = GA_Init(settings);
+    var best_survivor = GA(data).results[0];
+    var best = best_survivor[0];
+    var span = best_survivor[1];
+    
+    // Save the execution time for the algorithm
+    var ending_time = Date.now();
+    
+    // Graph all nodes then all edges
+    for(var node = 0; node + 1 < best.length; node++)
+    {
+        var coordinates = calc_dist.xy(best[node], data);
+        console.log("Adding: " + best[node] + ' with position x:' + coordinates[0] +' y:' + coordinates[1])
+        cy.add({
+            group: "nodes",
+            data: { id: best[node] },
+            position: { x: coordinates[0] , y: coordinates[1] }
+        });
+    }
+    for(var node = 0; node + 1 < best.length; node++)
+    {
+        var coordinates = calc_dist.xy(best[node], data);
+        console.log("Adding: " + best[node] + ' with position x:' + coordinates[0] +' y:' + coordinates[1])
+        cy.add([
+            { group: "edges", data: { source: best[node], target: best[node+1] } }
+        ]);
+    }
+    
+    display('Best path: '+best+'\nTotal Distance: '+span+'\nExecution Time: '+(ending_time-beginning_time));
+    
+    cy.forceRender();
+    cy.reset();
+    cy.fit();
+    
+    run_button.disabled = false;
+};
+
+function display(text)
+{
+    document.getElementById('results').innerHTML = '<pre>'+text+'</pre>';
+}

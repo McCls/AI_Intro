@@ -28,15 +28,17 @@ var generations = 100;
 // How many parents per generation (after children are produced, the population will be culled down to this level)
 var population_size = 100;
 
-
-// What of the population will be mutated (patients), and what percentage will protected (elites)
 // Note: these are percentage values (0 < percent < 1), since the protected values can't be modified, ((mutation_rate + elites) < 1)
+// How much dna should be swapped by parents
+var percent_recombination = 0.3;
+// How many children per generation (percent of population)
+var reproduction_rate = 0.3
+// What percent of the population will be mutated
 var patients = 0.2;
+// What percent will protected from mutation
 var elites = 0.1;
 // What percent of a path's genome will be changed due to a mutation
 var mutation_rate = 0.05;
-
-var percentage = { mutate: patients, protect: elites, mutation_rate: mutation_rate};
 
 /****************************************
  * Algorithm assignment
@@ -56,26 +58,24 @@ var mutate = cosmic_radiation;
 
 // Using the given path_length, return a valid configuration
 module.exports = {
-  GetConfig: function (path_length)
+  GetConfig: function (nodes)
   {
-    nodes = path_length;
+    var upper_population_limit = factorial(nodes);
+    if(upper_population_limit < population_size) { population_size = upper_population_limit; }
     
-    var genes_to_swap = Math.ceil(path_length * mutation_rate);
-    var genes_to_mutate = population_size * mutation_rate;
+    var genes_to_swap = Math.ceil(nodes * mutation_rate);
+    var genes_to_mutate = population_size * percent_recombination;
+    console.log('Swapping: ' + genes_to_mutate + ' genes per recombination');
     
-    if(path_length < (genes_to_swap + 2))
-    {
-        console.error("Error in configuration parameters.");
-        process.exit(1);
-    }
+    // Must have values other than the end caps to swap.
+    if(nodes < (genes_to_swap + 2))
+    { console.error("Error in configuration parameters."); process.exit(1); }
     
     var configuration = 
     {
       populate: populate,
-      reproduce: reproduce(genes_to_swap),
-      mutate: { method: cosmic_radiation(genes_to_mutate), number: (population_size * patients) },
-      
-      // Constants and require elements, do not tamper with these values
+      reproduce: { method: reproduce(genes_to_swap), number: (population_size * reproduction_rate)},
+      mutate: { method: mutate(genes_to_mutate), number: (population_size * patients) },
       population: population_size,
       elite_population_size: population_size * elites,
       generations: generations,
@@ -83,11 +83,13 @@ module.exports = {
     
     return configuration;
   },
+}
+
+function factorial(interger, product)
+{
+  var product = (typeof product !== 'undefined') ?  product : 1;
+  interger = Math.floor(interger);
   
-  GetPath: path_to_file()
+  if(interger > 0) { return factorial(interger - 1, product * interger) }
+  else { return product; }
 }
-
-function path_to_file() {
-  return __dirname;
-}
-

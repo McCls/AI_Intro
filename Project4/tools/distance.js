@@ -1,4 +1,9 @@
-module.exports = function calculateDistance(data, route)
+module.exports = {
+  calculate: calculateDistance,
+  xy: getXandY
+}
+
+function calculateDistance(data, route)
 {
   var distance = 0;
   
@@ -22,4 +27,12 @@ function nextPathLength(data, city1, city2)
   var y_delta = data.cities[city1][2] - data.cities[city2][2];
 
   return Math.sqrt(Math.pow(x_delta,2) + Math.pow(y_delta,2));
+}
+
+function getXandY(cityId, data) {
+  var cityIndex = cityId - 1;
+  if (cityId != data.cities[cityIndex][0]) {
+    console.error("Data not formatted correctly");
+  }
+  return [data.cities[cityIndex][1], data.cities[cityIndex][2]];
 }
