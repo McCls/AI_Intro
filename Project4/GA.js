@@ -81,7 +81,6 @@ function integrateIntoPopulace(children)
     {
       if (route_length == population[person][1])
       {
-        console.log("CLONE CLONE KILL THE CLONE");
         if(children[child].toString() == population[person].toString())
         {
           // Don't trust the clones.
