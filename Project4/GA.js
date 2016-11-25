@@ -1,3 +1,5 @@
+"use strict"
+
 var distance = require('./tools/distance.js');
 
 var population;
@@ -23,12 +25,23 @@ function run(concorde_data)
     console.log('generation: '+(rep+1));
     var children = generate_children();
     integrateIntoPopulace(children);
-    population.sort( function(a,b) { return a[1] - b[1] })
+    population.sort( function(a,b) { return a[1] - b[1] });
     cullThePopulation();
     diversifyUsingMutation();
-    history.push(population[0][1])
+    history.push(population[0][1]);
+    display("generation: "+rep+"/"+configuration.generations);
+    if(history.lenth > 500)
+    {
+      var plateau = true;
+      var end_value = history[history.length-1];
+      for(var index = 1; index < 100; index++)
+      {
+        if(end_value != history[history.length - (index + 1)]){plateau=false; break;}
+      }
+      if(plateau == true){console.log("Plateau reached."); break;}
+    }
   }
-  population.sort( function(a,b) { return a[1] - b[1] })
+  population.sort( function(a,b) { return a[1] - b[1] });
   
   console.log(JSON.stringify(population[4]));
   console.log(JSON.stringify(population[3]));
@@ -81,7 +94,7 @@ function integrateIntoPopulace(children)
     {
       if (route_length == population[person][1])
       {
-        if(children[child].toString() == population[person].toString())
+        if(children[child].toString() == population[person][0].toString())
         {
           // Don't trust the clones.
           is_a_clone = true;
@@ -124,4 +137,9 @@ function random_non_elite() {
   // Get an index and then adjust to keep the elites safe
   var random_index = Math.floor(Math.random() * (configuration.population - configuration.elite_population_size));
   return random_index + configuration.elite_population_size;
+}
+
+function display(text)
+{
+    document.getElementById('results').innerHTML = '<pre>'+text+'</pre>';
 }

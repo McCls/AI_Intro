@@ -24,9 +24,9 @@ var genetic_algorithm = require('./GA');
 // Number of nodes in a path. This will be overwritten when the configuration is initialized
 var nodes;
 // How many generations
-var generations = 100;
+var generations = 10000;
 // How many parents per generation (after children are produced, the population will be culled down to this level)
-var population_size = 100;
+var population_size = 1000;
 
 // Note: these are percentage values (0 < percent < 1), since the protected values can't be modified, ((mutation_rate + elites) < 1)
 // How much dna should be swapped by parents
@@ -38,7 +38,7 @@ var patients = 0.2;
 // What percent will protected from mutation
 var elites = 0.1;
 // What percent of a path's genome will be changed due to a mutation
-var mutation_rate = 0.05;
+var mutation_rate = 0.1;
 
 /****************************************
  * Algorithm assignment

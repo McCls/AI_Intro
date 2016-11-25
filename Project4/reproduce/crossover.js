@@ -73,7 +73,6 @@ module.exports = function (genes_to_cross)
 
 function find_non_duplicate(cross, check, strand)
 {
-    console.log('trying index: '+strand);
     var cross_index = cross.findIndex(function(element){return element == check[strand]});
     if(cross_index < 0)
     {
