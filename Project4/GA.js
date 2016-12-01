@@ -12,15 +12,29 @@ module.exports = function genetic_algorithm(ga_configuration) {
   return run;
 };
 
-function run(concorde_data)
+function run(concorde_data, previous_population, previous_history)
 {
   data = concorde_data;
-  population = configuration.populate(configuration.population, data.dimension);
   
-  initialize_populace(population);
-  var history = [];
+  if(typeof previous_population === 'undefined')
+  {
+    var target_generation = configuration.generations;
+    population = configuration.populate(configuration.population, data.dimension);
+    initialize_populace(population);
+  }
+  else
+  {
+    var target_generation = configuration.extra_generations;
+    population = previous_population;
+  }
   
-  for(var rep = 0; rep < configuration.generations; rep++)
+  var history = (typeof previous_history !== 'undefined') ?  previous_history : [];
+  
+  // Sort the population and save the best initial set in the populace
+  population.sort( function(a,b) { return a[1] - b[1] });
+  history.push(population[0][1]);
+  
+  for(var rep = 0; rep < target_generation; rep++)
   {
     console.log('generation: '+(rep+1));
     var children = generate_children();
@@ -29,16 +43,13 @@ function run(concorde_data)
     cullThePopulation();
     diversifyUsingMutation();
     history.push(population[0][1]);
-    display("generation: "+rep+"/"+configuration.generations);
-    if(history.lenth > 500)
+    // If we are not running a continuation of a previous cycle, check for a plateau
+    if(typeof previous_history == 'undefined')
     {
-      var plateau = true;
-      var end_value = history[history.length-1];
-      for(var index = 1; index < 100; index++)
+      if(APlateauWasReached(history))
       {
-        if(end_value != history[history.length - (index + 1)]){plateau=false; break;}
+        console.log("Plateau reached."); break;
       }
-      if(plateau == true){console.log("Plateau reached."); break;}
     }
   }
   population.sort( function(a,b) { return a[1] - b[1] });
@@ -61,26 +72,37 @@ function initialize_populace()
 }
 
 function generate_children() {
-  var parents = population.map(function(value,index) { return index; });
   var children = [];
   while(children.length < configuration.reproduce.number)
   {
-    var parent1 = parents.splice(random_person(parents), 1);
-    var parent2 = parents.splice(random_person(parents), 1);
+    var parent1 = random_person();
+    var parent2 = random_person();
+    while( parent1 == parent2 )
+    {
+      parent2 = random_person();
+    }
     
-    var offspring = configuration.reproduce.method(population[parent1][0], population[parent2][0]);
+    var offspring = configuration.reproduce.method( population[parent1][0], population[parent2][0] );
     for(var child = 0; child < offspring.length; child++)
     {
-      children.push(offspring[child]);
+      children.push( offspring[child] );
     }
   }
   
   return children;
 }
 
-function random_person(population) {
-    var random_index = Math.floor(Math.random() * (population.length));
-    return random_index;
+function random_person() {
+  // Get the percentage sections of the population used for selection
+  var lower = Math.floor(Math.random() * (configuration.mutate.weights.length - 1));
+  var upper = lower + 1;
+  
+  // Assign the actual border index values that the percentage sections would relate to
+  var lower_index = Math.floor(configuration.mutate.weights[lower] * configuration.population);
+  var index_range = Math.ceil((configuration.mutate.weights[upper] - configuration.mutate.weights[lower]) * configuration.population);
+
+  // Return a value somewhere in the index_range
+  return Math.floor(Math.random() * index_range) + lower_index;
 }
 
 function integrateIntoPopulace(children)
@@ -111,13 +133,6 @@ function integrateIntoPopulace(children)
   }
 }
 
-function BasedOnPathLength(a,b)
-{
-  if(a.distance > b.distance) { return 1; }
-  else if(b.distance > a.distance) { return -1; }
-  else { return 0; }
-}
-
 function cullThePopulation()
 {
   while(population.length > configuration.population) { population.pop(); }
@@ -139,7 +154,16 @@ function random_non_elite() {
   return random_index + configuration.elite_population_size;
 }
 
-function display(text)
+function APlateauWasReached(history)
 {
-    document.getElementById('results').innerHTML = '<pre>'+text+'</pre>';
+    if(history.length > configuration.plateau.minimum)
+    {
+      var plateau = true;
+      var end_value = history[history.length - 1];
+      for(var index = 1; index < configuration.plateau.target; index++)
+      {
+        if(end_value != history[history.length - (index + 1)]){plateau=false; break;}
+      }
+    }
+    return plateau;
 }
