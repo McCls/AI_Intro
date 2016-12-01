@@ -46,7 +46,7 @@ var cy = cytoscape({
 /*--------->Graph Helper Functions<----------*/
 var graph = {};
 graph.clear = function() { cy.nodes().remove(); cy.edges().remove(); };
-graph.display = function(nodes, data) { addNodes(nodes,data); addEdges(nodes,data); setTimeout( function(){ cy.reset(); cy.fit(); cy.forceRender(); }, 1000); };
+graph.display = function(nodes, data) { addNodes(nodes,data); addEdges(nodes,data); setTimeout( function(){ cy.reset(); cy.fit(); cy.forceRender(); }, 500); };
 function addNodes(nodes, data) { 
     for(var node in nodes) {
         var coordinates = calc_dist.xy(nodes[node], data);
@@ -72,7 +72,7 @@ var line_chart = document.getElementById('line_chart');
 /*--------->Chart Helper Functions<----------*/
 var chart = {};
 
-chart.display = function(logs) { setTimeout( function(){ new Chartist.Line( line_chart, chart_data(logs), { height: '250px' } ); }, 1000); };
+chart.display = function(logs) { setTimeout( function(){ new Chartist.Line( line_chart, chart_data(logs), { height: '250px' } ); }, 500); };
 /*-------------------------------------------*/
     
 
@@ -291,10 +291,10 @@ function ApplyUserValues(configuration)
 {
     console.log('User Entered: ' + text.gens());
     if( (text.gens() != '') && (typeof text.gens() != 'undefined'))
-    { 
-        configuration.update(configuration, 'generations', text.gens()); 
-        configuration.update(configuration, 'extra_generations', text.gens());
-    }
+    { configuration.generations = text.gens(); }
+    
+    // if( (text.gens() != '') && (typeof text.gens() != 'undefined'))
+    // { configuration.generations = text.gens(); }
 }
 
 function pow10(number)
