@@ -29718,7 +29718,7 @@ function GetConfig()
         
         populate: populate,
         reproduce: { method: reproduce(Percentage(settings.percent_geneswap) * settings.nodes), number: (settings.population_size * Percentage(settings.percent_reproduced))},
-        mutate: { method: mutate(Math.floor(Percentage(settings.percent_mutated) * (settings.nodes - 2))), number: (settings.population_size * Percentage(settings.percent_patients)), weights: weighted_selection },
+        mutate: { method: mutate(Math.floor(Percentage(settings.percent_mutated) * settings.nodes)), number: (settings.population_size * Percentage(settings.percent_patients)), weights: weighted_selection },
         plateau: { minimum: Math.ceil(Percentage(settings.local_start_check) * settings.generations), target: (Percentage(settings.local_pleateau) * settings.generations), number: (Percentage(settings.local_percent_escape) * settings.population_size) },
         
         data: settings.data

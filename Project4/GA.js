@@ -6,6 +6,7 @@ var population;
 var configuration;
 var data;
 
+// Export a configured GA.
 module.exports = function genetic_algorithm(ga_configuration) {
   configuration = ga_configuration;
   
@@ -16,6 +17,7 @@ function run(concorde_data, previous_population, previous_history)
 {
   data = concorde_data;
   
+  // If this is a continue, use the previous population. Otherwise, initialize a new population.
   if(typeof previous_population === 'undefined')
   {
     population = configuration.populate(configuration.population, data.dimension);
@@ -33,6 +35,7 @@ function run(concorde_data, previous_population, previous_history)
   population.sort( function(a,b) { return a[1] - b[1] });
   history.push(population[0][1]);
   
+  // GA main loop. 
   for(var rep = 0; rep < configuration.generations; rep++)
   {
     console.log('generation: '+(rep+1));
@@ -60,6 +63,7 @@ function generate_children() {
   var children = [];
   while(children.length < configuration.reproduce.number)
   {
+    // Select 2 unique parents at random from the population.
     var parent1 = random_person();
     var parent2 = random_person();
     while( parent1 == parent2 )
@@ -120,6 +124,7 @@ function integrateIntoPopulace(children)
 
 function cullThePopulation()
 {
+  // Remove the worst performing TSP paths until the population is within check.
   while(population.length > configuration.population) { population.pop(); }
 }
 
@@ -137,18 +142,4 @@ function random_non_elite() {
   // Get an index and then adjust to keep the elites safe
   var random_index = Math.floor(Math.random() * (configuration.population - configuration.elite_population_size));
   return random_index + configuration.elite_population_size;
-}
-
-function APlateauWasReached(history)
-{
-    if(history.length > configuration.plateau.minimum)
-    {
-      var plateau = true;
-      var end_value = history[history.length - 1];
-      for(var index = 1; index < configuration.plateau.target; index++)
-      {
-        if(end_value != history[history.length - (index + 1)]){plateau=false; break;}
-      }
-    }
-    return plateau;
 }

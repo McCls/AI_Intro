@@ -28,21 +28,13 @@ var defaults = {};
  * Defaults
  *
  * - Below are the default values that will be used to implement the standard genetic algorithm.
- * -    Included are values for reproduction, mutation, and re-evaluation in the event of a local minima.
+ * -    Included are values for reproduction and mutation.
  ****************************************/
 // How many generations should be executed given a button press?
 defaults.generations = 3000;
 // How many parents per generation (after children are produced, the population will be culled down to this level)
 defaults.population_size = 200;
 
-/****Catch and Release****/ //Play on words. This provides additional randomization if a local minima is reached.
-// After how many runs should we start looking for a plateau? Percent of target generations value.
-defaults.local_start_check = .1;
-// How long of a plateau is required before additional randomization is added?
-//    note: must be less than "local_minima" value
-defaults.local_plateau = .50;
-// What percent of the sets will be replaced with random paths?
-defaults.local_percent_escape = 0.25;
 
 /*************************************************************************************************************
  *                      Note: The below values are all percentages (0 < percent < 1)                         *
@@ -64,13 +56,6 @@ defaults.percent_mutated = 0.2;
 // Weighted mutation lookup table. Split the table into several sections, giving 
 //    each section an equal chance of being selected.
 var weighted_selection = [0, 0.1, 0.3, 0.6, 1]; // Note: as this would be rather complex to put into a user input, it will only be set to this default value
-
-/****Safety Catch****/
-// After how many runs should we start looking for a plateau? Can be integer or percent (of target generations) value.
-defaults.min_run = 1; // Set to 100% (i.e. no plateau catch)
-// How long of a plateau is required before triggering an escape? Can be integer or percent (of target generations) value.
-//    note: must be less than "min_run" value
-defaults.percent_monitored = 0.0001;
 
 
 /****************************************
