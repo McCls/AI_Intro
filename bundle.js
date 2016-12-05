@@ -2203,24 +2203,22 @@ function run(concorde_data, previous_population, previous_history)
   
   if(typeof previous_population === 'undefined')
   {
-    var target_generation = configuration.generations;
     population = configuration.populate(configuration.population, data.dimension);
     initialize_populace(population);
   }
   else
   {
-    var target_generation = configuration.extra_generations;
     population = previous_population;
   }
   
+  // Add to previous history if it exists
   var history = (typeof previous_history !== 'undefined') ?  previous_history : [];
-  console.log("Testing success of input boxes." + configuration.reproduce.number);
   
   // Sort the population and save the best initial set in the populace
   population.sort( function(a,b) { return a[1] - b[1] });
   history.push(population[0][1]);
   
-  for(var rep = 0; rep < target_generation; rep++)
+  for(var rep = 0; rep < configuration.generations; rep++)
   {
     console.log('generation: '+(rep+1));
     var children = generate_children();
@@ -2229,23 +2227,9 @@ function run(concorde_data, previous_population, previous_history)
     cullThePopulation();
     diversifyUsingMutation();
     history.push(population[0][1]);
-    // If we are not running a continuation of a previous cycle, check for a plateau
-    if(typeof previous_history == 'undefined')
-    {
-      if(APlateauWasReached(history))
-      {
-        console.log("Plateau reached."); break;
-      }
-    }
   }
+  
   population.sort( function(a,b) { return a[1] - b[1] });
-  
-  console.log(JSON.stringify(population[4]));
-  console.log(JSON.stringify(population[3]));
-  console.log(JSON.stringify(population[2]));
-  console.log(JSON.stringify(population[1]));
-  console.log(JSON.stringify(population[0]));
-  
   return {results: population, logs: history};
 }
 
@@ -29667,12 +29651,12 @@ defaults.generations = 3000;
 defaults.population_size = 200;
 
 /****Catch and Release****/ //Play on words. This provides additional randomization if a local minima is reached.
-// After how many runs should we start looking for a plateau? Can be integer or percent (of target generations) value.
-defaults.local_start_check = 200;
+// After how many runs should we start looking for a plateau? Percent of target generations value.
+defaults.local_start_check = .1;
 // How long of a plateau is required before additional randomization is added?
 //    note: must be less than "local_minima" value
-defaults.local_plateau = 100;
-// After how many runs should we start looking for a plateau? Can be integer or percent (of target generations) value.
+defaults.local_plateau = .50;
+// What percent of the sets will be replaced with random paths?
 defaults.local_percent_escape = 0.25;
 
 /*************************************************************************************************************
@@ -29735,7 +29719,7 @@ function GetConfig()
         populate: populate,
         reproduce: { method: reproduce(Percentage(settings.percent_geneswap) * settings.nodes), number: (settings.population_size * Percentage(settings.percent_reproduced))},
         mutate: { method: mutate(Math.floor(Percentage(settings.percent_mutated) * (settings.nodes - 2))), number: (settings.population_size * Percentage(settings.percent_patients)), weights: weighted_selection },
-        plateau: { minimum: BoundCheck(settings.local_start_check, settings.generations), target: BoundCheck(settings.local_pleateau, settings.generations), number: (Percentage(settings.local_percent_escape) * settings.population_size) },
+        plateau: { minimum: Math.ceil(Percentage(settings.local_start_check) * settings.generations), target: (Percentage(settings.local_pleateau) * settings.generations), number: (Percentage(settings.local_percent_escape) * settings.population_size) },
         
         data: settings.data
     };
@@ -29962,6 +29946,9 @@ button.continue.onclick = function()
     button.disable();
     graph.clear();
     
+    setTimeout( function() 
+    {
+    
     // Start a timer to measure algorithm execution time.
     var beginning_time = Date.now();
     
@@ -29997,6 +29984,9 @@ button.continue.onclick = function()
     button.lastPress.log = gaRun.log;
     button.lastPress.time = total_time;
     
+    // End of timeout section    
+    }, 100);
+    
     button.enable();
 };
 
@@ -30021,7 +30011,7 @@ function Continuation()
   *********************************************
   * Extra helper functions
   * 
-  * - Helper functions too large to fit into their
+  * - general helper functions or functions too large to fit into their
   *      respective sections.
   *********************************************
   *********************************************/
@@ -30085,31 +30075,6 @@ function Percentage(check_value) {
   }
   else {
     return check_value;
-  }
-}
-
-function BoundCheck(check_value, value_maximum) {
-  if (check_value <= 0) {
-    console.error('Error: Value not in acceptable range');
-    process.exit(2);
-  }
-  if (check_value > 1) {
-    return check_value;
-  }
-  else {
-    return Math.ceil(check_value * value_maximum);
-  }
-}
-
-// Recursively find the factorial value for a given integer.
-function factorial(interger, running_product) {
-  var product = (typeof running_product !== 'undefined') ? running_product : 1;
-  interger = Math.floor(interger);
-  if (interger > 0) {
-    return factorial(interger - 1, product * interger);
-  }
-  else {
-    return product;
   }
 }
 

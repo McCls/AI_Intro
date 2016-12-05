@@ -18,24 +18,22 @@ function run(concorde_data, previous_population, previous_history)
   
   if(typeof previous_population === 'undefined')
   {
-    var target_generation = configuration.generations;
     population = configuration.populate(configuration.population, data.dimension);
     initialize_populace(population);
   }
   else
   {
-    var target_generation = configuration.extra_generations;
     population = previous_population;
   }
   
+  // Add to previous history if it exists
   var history = (typeof previous_history !== 'undefined') ?  previous_history : [];
-  console.log("Testing success of input boxes." + configuration.reproduce.number);
   
   // Sort the population and save the best initial set in the populace
   population.sort( function(a,b) { return a[1] - b[1] });
   history.push(population[0][1]);
   
-  for(var rep = 0; rep < target_generation; rep++)
+  for(var rep = 0; rep < configuration.generations; rep++)
   {
     console.log('generation: '+(rep+1));
     var children = generate_children();
@@ -44,23 +42,9 @@ function run(concorde_data, previous_population, previous_history)
     cullThePopulation();
     diversifyUsingMutation();
     history.push(population[0][1]);
-    // If we are not running a continuation of a previous cycle, check for a plateau
-    if(typeof previous_history == 'undefined')
-    {
-      if(APlateauWasReached(history))
-      {
-        console.log("Plateau reached."); break;
-      }
-    }
   }
+  
   population.sort( function(a,b) { return a[1] - b[1] });
-  
-  console.log(JSON.stringify(population[4]));
-  console.log(JSON.stringify(population[3]));
-  console.log(JSON.stringify(population[2]));
-  console.log(JSON.stringify(population[1]));
-  console.log(JSON.stringify(population[0]));
-  
   return {results: population, logs: history};
 }
 

@@ -36,12 +36,12 @@ defaults.generations = 3000;
 defaults.population_size = 200;
 
 /****Catch and Release****/ //Play on words. This provides additional randomization if a local minima is reached.
-// After how many runs should we start looking for a plateau? Can be integer or percent (of target generations) value.
-defaults.local_start_check = 200;
+// After how many runs should we start looking for a plateau? Percent of target generations value.
+defaults.local_start_check = .1;
 // How long of a plateau is required before additional randomization is added?
 //    note: must be less than "local_minima" value
-defaults.local_plateau = 100;
-// After how many runs should we start looking for a plateau? Can be integer or percent (of target generations) value.
+defaults.local_plateau = .50;
+// What percent of the sets will be replaced with random paths?
 defaults.local_percent_escape = 0.25;
 
 /*************************************************************************************************************
@@ -103,8 +103,8 @@ function GetConfig()
         
         populate: populate,
         reproduce: { method: reproduce(Percentage(settings.percent_geneswap) * settings.nodes), number: (settings.population_size * Percentage(settings.percent_reproduced))},
-        mutate: { method: mutate(Math.floor(Percentage(settings.percent_mutated) * (settings.nodes - 2))), number: (settings.population_size * Percentage(settings.percent_patients)), weights: weighted_selection },
-        plateau: { minimum: BoundCheck(settings.local_start_check, settings.generations), target: BoundCheck(settings.local_pleateau, settings.generations), number: (Percentage(settings.local_percent_escape) * settings.population_size) },
+        mutate: { method: mutate(Math.floor(Percentage(settings.percent_mutated) * settings.nodes)), number: (settings.population_size * Percentage(settings.percent_patients)), weights: weighted_selection },
+        plateau: { minimum: Math.ceil(Percentage(settings.local_start_check) * settings.generations), target: (Percentage(settings.local_pleateau) * settings.generations), number: (Percentage(settings.local_percent_escape) * settings.population_size) },
         
         data: settings.data
     };
@@ -331,6 +331,9 @@ button.continue.onclick = function()
     button.disable();
     graph.clear();
     
+    setTimeout( function() 
+    {
+    
     // Start a timer to measure algorithm execution time.
     var beginning_time = Date.now();
     
@@ -366,6 +369,9 @@ button.continue.onclick = function()
     button.lastPress.log = gaRun.log;
     button.lastPress.time = total_time;
     
+    // End of timeout section    
+    }, 100);
+    
     button.enable();
 };
 
@@ -390,7 +396,7 @@ function Continuation()
   *********************************************
   * Extra helper functions
   * 
-  * - Helper functions too large to fit into their
+  * - general helper functions or functions too large to fit into their
   *      respective sections.
   *********************************************
   *********************************************/
@@ -454,18 +460,5 @@ function Percentage(check_value) {
   }
   else {
     return check_value;
-  }
-}
-
-function BoundCheck(check_value, value_maximum) {
-  if (check_value <= 0) {
-    console.error('Error: Value not in acceptable range');
-    process.exit(2);
-  }
-  if (check_value > 1) {
-    return check_value;
-  }
-  else {
-    return Math.ceil(check_value * value_maximum);
   }
 }
