@@ -1,4 +1,5 @@
 var crossover_size;
+var chance_of_dominant;
 
 function transcribe(core_dna, cross_dna, check_dna, crossover_point)
 {
@@ -45,6 +46,16 @@ function crossover(path1, path2)
     var crossover1 = parent2.splice(crossover_point, crossover_size);
     var crossover2 = parent1.splice(crossover_point, crossover_size);
     
+    for(var gene in crossover1)
+    {
+        if(Math.random() < chance_of_dominant)
+        {
+            var rna = crossover1[gene];
+            crossover1[gene] = crossover2[gene];
+            crossover2[gene] = rna;
+        }
+    }
+    
     // Validate the paths and remove duplicates, then insert the crossover sections
     var child1 = transcribe(parent1, crossover1, crossover2, crossover_point);
     // validate_path(path2,path1,child1);
@@ -64,8 +75,9 @@ function random_start(array_size) {
     return start_point;
 }
 
-module.exports = function (genes_to_cross)
+module.exports = function (genes_to_cross, chance_of_dominant_genes)
 {
+    chance_of_dominant = chance_of_dominant_genes;
     crossover_size = genes_to_cross;
     
     return crossover;
