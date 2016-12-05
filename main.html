@@ -42,6 +42,18 @@
                 width: 160px;
             }
             
+            form > div {
+                float: left;
+                width: 75px;
+                font-size: 12px;
+                text-align: justify;
+            }
+            
+            form > input {
+                float: left;
+                width: 65px;
+            }
+            
             article {
                 position: absolute;
                 top: 0;
@@ -103,10 +115,33 @@
                     <option value="Random100">Random100.tsp</option>
                 </select> 
                 <br>
-                <br>
+                
+                <br>General:<br>
                 <form onsubmit="return false;">
-                  Generations: 
-                  <input type="number" id="gens" min="0" max="3000" step="100">
+                  <div>Generations:</div><input type="number" id="generations" min="10" max="5000" step="10"><br>
+                  <div>Population:</div><input type="number" id="population_size" min="5" max="1000" step="5"><br>
+                </form>
+                <br>Reproduction:<br>
+                <form onsubmit="return false;">
+                  <div>%Reproduced:</div><input type="number" id="percent_reproduced" min="0.01" max="1" step="0.01"><br>
+                  <div>%Crossover:</div><input type="number" id="percent_geneswap" min="0.01" max="1" step="0.01"><br>
+                </form>
+                <br>Mutation:<br>
+                <form onsubmit="return false;">
+                  <div>%Protected:</div><input type="number" id="percent_elites" min="0" max="1" step="0.01"><br>
+                  <div>%Mutated:</div><input type="number" id="percent_patients" min="0" max="1" step="0.01"><br>
+                  <div>%Change:</div><input type="number" id="percent_mutated" min="0.01" max="1" step="0.01"><br>
+                </form>
+                <br>Timeout:<br>
+                <form onsubmit="return false;">
+                  <div>%Min Run:</div><input type="number" id="min_run" min="0" max="1" step="0.01"><br>
+                  <div>%Plateau:</div><input type="number" id="percent_monitored" min="0" max="1" step="0.01"><br>
+                </form>
+                <br>Randomization:<br>
+                <form onsubmit="return false;">
+                  <div>%Wait:</div><input type="number" id="local_start_check" min="0" max="1" step="0.01"><br>
+                  <div>%Watched:</div><input type="number" id="local_plateau" min="0" max="1" step="0.01"><br>
+                  <div>%Random:</div><input type="number" id="local_percent_escape" min="0" max="1" step="0.01"><br>
                 </form>
                 
                 <!--Buttons-->

@@ -29,6 +29,7 @@ function run(concorde_data, previous_population, previous_history)
   }
   
   var history = (typeof previous_history !== 'undefined') ?  previous_history : [];
+  console.log("Testing success of input boxes." + configuration.reproduce.number);
   
   // Sort the population and save the best initial set in the populace
   population.sort( function(a,b) { return a[1] - b[1] });

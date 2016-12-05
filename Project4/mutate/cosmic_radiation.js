@@ -22,4 +22,4 @@ module.exports = function(cosmic_rays)
     photons = cosmic_rays;
     
     return cosmic_radiation;
-}
+};

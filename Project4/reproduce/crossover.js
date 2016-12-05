@@ -83,37 +83,3 @@ function find_non_duplicate(cross, check, strand)
         return find_non_duplicate(cross, check, cross_index);
     }
 }
-
-
-// function validate_path(parent1, parent2, child)
-// {
-//     var tisk_tisk = false;
-//     var visited = [];
-//     for(var gene=0; gene < child.length - 1; gene++)
-//     {
-//         if(0 < visited.findIndex(function(element){return element == child[gene]}))
-//         {
-//             tisk_tisk = true;
-//             var stringer1 = '';
-//             var stringer2 = '';
-//             var stringer3 = '';
-            
-//             for(var node = 0; node < child.length - 1; node++)
-//             {
-//                 stringer1 = stringer1 + parent1[node] + ', ';
-//                 stringer2 = stringer2 + parent2[node] + ', ';
-//                 stringer3 = stringer3 + child[node] + ', ';
-//             }
-//             console.log('Repeating node is: ' + child[gene] + ' at ' + gene)
-//             console.log('parent1: ' + stringer1);
-//             console.log('parent2: ' + stringer2);
-//             console.log('child:   ' + stringer3);
-//             console.stop('child:   ' + stringer3);
-//             break;
-//         }
-//         else
-//         {
-//             visited.push(child[gene]);
-//         }
-//     }
-// }
