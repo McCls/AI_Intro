@@ -2191,6 +2191,7 @@ var population;
 var configuration;
 var data;
 
+// Export a configured GA.
 module.exports = function genetic_algorithm(ga_configuration) {
   configuration = ga_configuration;
   
@@ -2201,6 +2202,7 @@ function run(concorde_data, previous_population, previous_history)
 {
   data = concorde_data;
   
+  // If this is a continue, use the previous population. Otherwise, initialize a new population.
   if(typeof previous_population === 'undefined')
   {
     population = configuration.populate(configuration.population, data.dimension);
@@ -2218,6 +2220,7 @@ function run(concorde_data, previous_population, previous_history)
   population.sort( function(a,b) { return a[1] - b[1] });
   history.push(population[0][1]);
   
+  // GA main loop. 
   for(var rep = 0; rep < configuration.generations; rep++)
   {
     console.log('generation: '+(rep+1));
@@ -2245,6 +2248,7 @@ function generate_children() {
   var children = [];
   while(children.length < configuration.reproduce.number)
   {
+    // Select 2 unique parents at random from the population.
     var parent1 = random_person();
     var parent2 = random_person();
     while( parent1 == parent2 )
@@ -2305,6 +2309,7 @@ function integrateIntoPopulace(children)
 
 function cullThePopulation()
 {
+  // Remove the worst performing TSP paths until the population is within check.
   while(population.length > configuration.population) { population.pop(); }
 }
 
@@ -2322,20 +2327,6 @@ function random_non_elite() {
   // Get an index and then adjust to keep the elites safe
   var random_index = Math.floor(Math.random() * (configuration.population - configuration.elite_population_size));
   return random_index + configuration.elite_population_size;
-}
-
-function APlateauWasReached(history)
-{
-    if(history.length > configuration.plateau.minimum)
-    {
-      var plateau = true;
-      var end_value = history[history.length - 1];
-      for(var index = 1; index < configuration.plateau.target; index++)
-      {
-        if(end_value != history[history.length - (index + 1)]){plateau=false; break;}
-      }
-    }
-    return plateau;
 }
 
 },{"./tools/distance.js":12}],7:[function(require,module,exports){
@@ -2483,6 +2474,7 @@ module.exports = populate;
 },{}],10:[function(require,module,exports){
 (function (process){
 var crossover_size;
+var chance_of_dominant;
 
 function transcribe(core_dna, cross_dna, check_dna, crossover_point)
 {
@@ -2529,6 +2521,16 @@ function crossover(path1, path2)
     var crossover1 = parent2.splice(crossover_point, crossover_size);
     var crossover2 = parent1.splice(crossover_point, crossover_size);
     
+    // for(var gene in crossover1)
+    // {
+    //     if(Math.random() < chance_of_dominant)
+    //     {
+    //         var rna = crossover1[gene];
+    //         crossover1[gene] = crossover2[gene];
+    //         crossover2[gene] = rna;
+    //     }
+    // }
+    
     // Validate the paths and remove duplicates, then insert the crossover sections
     var child1 = transcribe(parent1, crossover1, crossover2, crossover_point);
     // validate_path(path2,path1,child1);
@@ -2548,8 +2550,9 @@ function random_start(array_size) {
     return start_point;
 }
 
-module.exports = function (genes_to_cross)
+module.exports = function (genes_to_cross, chance_of_dominant_genes)
 {
+    chance_of_dominant = chance_of_dominant_genes;
     crossover_size = genes_to_cross;
     
     return crossover;
@@ -29630,7 +29633,7 @@ var GA_Init = require('./Project4/GA.js');
 // Population algorithms
 var random = require('./Project4/populate/random');
 // Reproduction algorithms
-var crossover = require('./Project4/reproduce/crossover');
+var crossover = require('./Project4/reproduce/two_point_crossover');
 // Mutation algorithms
 var cosmic_radiation = require('./Project4/mutate/cosmic_radiation');
 
@@ -29643,21 +29646,15 @@ var defaults = {};
  * Defaults
  *
  * - Below are the default values that will be used to implement the standard genetic algorithm.
- * -    Included are values for reproduction, mutation, and re-evaluation in the event of a local minima.
+ * -    Included are values for reproduction and mutation.
  ****************************************/
+// How many trials should be run?
+defaults.trials = 1;
 // How many generations should be executed given a button press?
 defaults.generations = 3000;
 // How many parents per generation (after children are produced, the population will be culled down to this level)
 defaults.population_size = 200;
 
-/****Catch and Release****/ //Play on words. This provides additional randomization if a local minima is reached.
-// After how many runs should we start looking for a plateau? Percent of target generations value.
-defaults.local_start_check = .1;
-// How long of a plateau is required before additional randomization is added?
-//    note: must be less than "local_minima" value
-defaults.local_plateau = .50;
-// What percent of the sets will be replaced with random paths?
-defaults.local_percent_escape = 0.25;
 
 /*************************************************************************************************************
  *                      Note: The below values are all percentages (0 < percent < 1)                         *
@@ -29667,6 +29664,8 @@ defaults.local_percent_escape = 0.25;
 defaults.percent_geneswap = 0.3;
 // How many children per generation (percent of population)
 defaults.percent_reproduced = 0.3;
+// Chance that a gene-swap is dominant rather than recessive.
+defaults.chance_of_dominant = 0.3;
 
 /****Mutation****/
 // What percent will protected from mutation (taken from the fittest sets)
@@ -29679,13 +29678,6 @@ defaults.percent_mutated = 0.2;
 // Weighted mutation lookup table. Split the table into several sections, giving 
 //    each section an equal chance of being selected.
 var weighted_selection = [0, 0.1, 0.3, 0.6, 1]; // Note: as this would be rather complex to put into a user input, it will only be set to this default value
-
-/****Safety Catch****/
-// After how many runs should we start looking for a plateau? Can be integer or percent (of target generations) value.
-defaults.min_run = 1; // Set to 100% (i.e. no plateau catch)
-// How long of a plateau is required before triggering an escape? Can be integer or percent (of target generations) value.
-//    note: must be less than "min_run" value
-defaults.percent_monitored = 0.0001;
 
 
 /****************************************
@@ -29717,7 +29709,7 @@ function GetConfig()
         elite_population_size: Math.ceil(settings.population_size * Percentage(settings.percent_elites)),
         
         populate: populate,
-        reproduce: { method: reproduce(Percentage(settings.percent_geneswap) * settings.nodes), number: (settings.population_size * Percentage(settings.percent_reproduced))},
+        reproduce: { method: reproduce((Percentage(settings.percent_geneswap) * settings.nodes), settings.chance_of_dominant), number: (settings.population_size * Percentage(settings.percent_reproduced))},
         mutate: { method: mutate(Math.floor(Percentage(settings.percent_mutated) * settings.nodes)), number: (settings.population_size * Percentage(settings.percent_patients)), weights: weighted_selection },
         plateau: { minimum: Math.ceil(Percentage(settings.local_start_check) * settings.generations), target: (Percentage(settings.local_pleateau) * settings.generations), number: (Percentage(settings.local_percent_escape) * settings.population_size) },
         
@@ -29892,7 +29884,14 @@ button.run.onclick = function()
     
     setTimeout( function() 
     {
-            
+    // Create a list to store all of the best paths and distances from each trial    
+    var iterations = GetValueFor('trials');
+    var trial_paths = Array(iterations);
+    for(var trial = 0; trial<iterations; trial++)
+    {
+        trial_paths[trial] = Array(0,0);
+    }
+    
     // Start a timer to measure algorithm execution time.
     var beginning_time = Date.now();
     
@@ -29904,14 +29903,46 @@ button.run.onclick = function()
     // Execute the genetic algorithm
     var gaRun = GA(config.data);
     var best_survivor = gaRun.results[0];
+    trial_paths[0][0] = best_survivor[0];
+    trial_paths[0][1] = best_survivor[1];
     
     // Get the path of the best survivor
     var best = best_survivor[0];
     // Get the length of the best survivor
     var span = best_survivor[1];
+    // Get the history of improvement
+    var history = {};
+    history.logs = gaRun.logs;
+    history.results = gaRun.results;
+    
+    // Perform the specified number of trials
+    for(var run=1; run < iterations; run++)
+    {
+        var another_gaRun = GA(config.data);
+        console.log("Trial: " + (run + 1));
+        trial_paths[run][0] = another_gaRun.results[0][0];
+        trial_paths[run][1] = another_gaRun.results[0][1];
+        
+        // If we get a better trail run, save it for displaying.
+        if(another_gaRun.results[0][1] < span)
+        {
+            best = another_gaRun.results[0][0];
+            span = another_gaRun.results[0][1];
+            history.results = another_gaRun.results;
+            history.logs = another_gaRun.logs;
+        }
+        // Problems with call size. Clearing run after information is saved.
+        another_gaRun = undefined;
+    }
     
     // Save the execution time for the algorithm
     var ending_time = Date.now();
+    
+    var span_sum = 0;
+    for(trial in trial_paths)
+    {
+        span_sum = span_sum + trial_paths[trial][1];
+    }
     
     // Display a text output for the results of the GA
     //    Note: Due to html issues, manually wrap the text
@@ -29925,20 +29956,21 @@ button.run.onclick = function()
     var total_time = ( ending_time - beginning_time );
     
     // Save values in case an Continue is requested.
-    button.lastPress = gaRun;
+    button.lastPress.results = history.results;
+    button.lastPress.logs = history.logs;
     // Data must be saved individually in-case of a file selection change.
     button.lastPress.data = config.data;
     button.lastPress.configuration = config;
     button.lastPress.time = total_time;
     
-    text.display('Best path:\n' + path_display + '\nTotal Distance: ' + span + '\nExecution Time: ' + total_time );
-    chart.display(gaRun.logs);
+    text.display('Best path:\n' + path_display + '\nBest Distance: ' + span + '\nAverage Distance: ' + span_sum/iterations + '\nAverage Execution Time: ' + total_time/iterations );
+    chart.display(history.logs);
     graph.display(best, config.data);
     
     // End of timeout section    
-    }, 100);
     
     button.enable();
+    }, 100);
 };
 
 button.continue.onclick = function()
@@ -29981,7 +30013,7 @@ button.continue.onclick = function()
     
     
     button.lastPress.results = gaRun.results;
-    button.lastPress.log = gaRun.log;
+    button.lastPress.logs = gaRun.logs;
     button.lastPress.time = total_time;
     
     // End of timeout section    
@@ -30079,7 +30111,7 @@ function Percentage(check_value) {
 }
 
 }).call(this,require('_process'))
-},{"./Project4/GA.js":6,"./Project4/assignment-files/concordeFileReader.js":7,"./Project4/mutate/cosmic_radiation":8,"./Project4/populate/random":9,"./Project4/reproduce/crossover":10,"./Project4/tools/cytoscape.js":11,"./Project4/tools/distance.js":12,"./node_modules/chartist/dist/chartist.min.js":14,"_process":5}],14:[function(require,module,exports){
+},{"./Project4/GA.js":6,"./Project4/assignment-files/concordeFileReader.js":7,"./Project4/mutate/cosmic_radiation":8,"./Project4/populate/random":9,"./Project4/reproduce/two_point_crossover":10,"./Project4/tools/cytoscape.js":11,"./Project4/tools/distance.js":12,"./node_modules/chartist/dist/chartist.min.js":14,"_process":5}],14:[function(require,module,exports){
 /* Chartist.js 0.10.0
  * Copyright © 2016 Gion Kunz
  * Free to use under either the WTFPL license or the MIT license.

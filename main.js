@@ -15,7 +15,7 @@ var GA_Init = require('./Project4/GA.js');
 // Population algorithms
 var random = require('./Project4/populate/random');
 // Reproduction algorithms
-var crossover = require('./Project4/reproduce/crossover');
+var crossover = require('./Project4/reproduce/two_point_crossover');
 // Mutation algorithms
 var cosmic_radiation = require('./Project4/mutate/cosmic_radiation');
 
@@ -30,6 +30,8 @@ var defaults = {};
  * - Below are the default values that will be used to implement the standard genetic algorithm.
  * -    Included are values for reproduction and mutation.
  ****************************************/
+// How many trials should be run?
+defaults.trials = 1;
 // How many generations should be executed given a button press?
 defaults.generations = 3000;
 // How many parents per generation (after children are produced, the population will be culled down to this level)
@@ -44,6 +46,8 @@ defaults.population_size = 200;
 defaults.percent_geneswap = 0.3;
 // How many children per generation (percent of population)
 defaults.percent_reproduced = 0.3;
+// Chance that a gene-swap is dominant rather than recessive.
+defaults.chance_of_dominant = 0.3;
 
 /****Mutation****/
 // What percent will protected from mutation (taken from the fittest sets)
@@ -87,7 +91,7 @@ function GetConfig()
         elite_population_size: Math.ceil(settings.population_size * Percentage(settings.percent_elites)),
         
         populate: populate,
-        reproduce: { method: reproduce(Percentage(settings.percent_geneswap) * settings.nodes), number: (settings.population_size * Percentage(settings.percent_reproduced))},
+        reproduce: { method: reproduce((Percentage(settings.percent_geneswap) * settings.nodes), settings.chance_of_dominant), number: (settings.population_size * Percentage(settings.percent_reproduced))},
         mutate: { method: mutate(Math.floor(Percentage(settings.percent_mutated) * settings.nodes)), number: (settings.population_size * Percentage(settings.percent_patients)), weights: weighted_selection },
         plateau: { minimum: Math.ceil(Percentage(settings.local_start_check) * settings.generations), target: (Percentage(settings.local_pleateau) * settings.generations), number: (Percentage(settings.local_percent_escape) * settings.population_size) },
         
@@ -262,7 +266,14 @@ button.run.onclick = function()
     
     setTimeout( function() 
     {
-            
+    // Create a list to store all of the best paths and distances from each trial    
+    var iterations = GetValueFor('trials');
+    var trial_paths = Array(iterations);
+    for(var trial = 0; trial<iterations; trial++)
+    {
+        trial_paths[trial] = Array(0,0);
+    }
+    
     // Start a timer to measure algorithm execution time.
     var beginning_time = Date.now();
     
@@ -274,14 +285,46 @@ button.run.onclick = function()
     // Execute the genetic algorithm
     var gaRun = GA(config.data);
     var best_survivor = gaRun.results[0];
+    trial_paths[0][0] = best_survivor[0];
+    trial_paths[0][1] = best_survivor[1];
     
     // Get the path of the best survivor
     var best = best_survivor[0];
     // Get the length of the best survivor
     var span = best_survivor[1];
+    // Get the history of improvement
+    var history = {};
+    history.logs = gaRun.logs;
+    history.results = gaRun.results;
+    
+    // Perform the specified number of trials
+    for(var run=1; run < iterations; run++)
+    {
+        var another_gaRun = GA(config.data);
+        console.log("Trial: " + (run + 1));
+        trial_paths[run][0] = another_gaRun.results[0][0];
+        trial_paths[run][1] = another_gaRun.results[0][1];
+        
+        // If we get a better trail run, save it for displaying.
+        if(another_gaRun.results[0][1] < span)
+        {
+            best = another_gaRun.results[0][0];
+            span = another_gaRun.results[0][1];
+            history.results = another_gaRun.results;
+            history.logs = another_gaRun.logs;
+        }
+        // Problems with call size. Clearing run after information is saved.
+        another_gaRun = undefined;
+    }
     
     // Save the execution time for the algorithm
     var ending_time = Date.now();
+    
+    var span_sum = 0;
+    for(trial in trial_paths)
+    {
+        span_sum = span_sum + trial_paths[trial][1];
+    }
     
     // Display a text output for the results of the GA
     //    Note: Due to html issues, manually wrap the text
@@ -295,20 +338,21 @@ button.run.onclick = function()
     var total_time = ( ending_time - beginning_time );
     
     // Save values in case an Continue is requested.
-    button.lastPress = gaRun;
+    button.lastPress.results = history.results;
+    button.lastPress.logs = history.logs;
     // Data must be saved individually in-case of a file selection change.
     button.lastPress.data = config.data;
     button.lastPress.configuration = config;
     button.lastPress.time = total_time;
     
-    text.display('Best path:\n' + path_display + '\nTotal Distance: ' + span + '\nExecution Time: ' + total_time );
-    chart.display(gaRun.logs);
+    text.display('Best path:\n' + path_display + '\nBest Distance: ' + span + '\nAverage Distance: ' + span_sum/iterations + '\nAverage Execution Time: ' + total_time/iterations );
+    chart.display(history.logs);
     graph.display(best, config.data);
     
     // End of timeout section    
-    }, 100);
     
     button.enable();
+    }, 100);
 };
 
 button.continue.onclick = function()
@@ -351,7 +395,7 @@ button.continue.onclick = function()
     
     
     button.lastPress.results = gaRun.results;
-    button.lastPress.log = gaRun.log;
+    button.lastPress.logs = gaRun.logs;
     button.lastPress.time = total_time;
     
     // End of timeout section    
