@@ -9,7 +9,8 @@ module.exports = {
 // Global variables to store values while in recursive function.
 var optimal_path = {
   route_shortest: [],
-  distance: undefined
+  distance: undefined,
+  order_added: []
 };
 
 function polygonal_expansion(data) {
@@ -54,27 +55,30 @@ function MinMaxRandExpansion(cities, data) {
 
   var distances = {};
   for (var path in paths) {
-    distances[path] = distance.calculate(data, paths[path]);
+    distances[path] = distance.calculate(data, paths[path].route);
   }
 
   // Check if the path produced by the longest seeded edge is best
   if ((distances.longest <= distances.shortest) &&
     (distances.longest <= distances.random)) {
-    console.log("Using path generated from longest edge seed.")
-    optimal_path.route_shortest = paths.longest;
+    console.log("Using path generated from longest edge seed.");
+    optimal_path.route_shortest = paths.longest.route;
     optimal_path.distance = distances.longest;
+    optimal_path.order_added = paths.longest.order_of_expansion;
   }
   // Check if the path produced by the shortest seeded edge is best
   else if (distances.shortest <= distances.random) {
-    console.log("Using path generated from shortest edge seed.")
-    optimal_path.route_shortest = paths.shortest;
+    console.log("Using path generated from shortest edge seed.");
+    optimal_path.route_shortest = paths.shortest.route;
     optimal_path.distance = distances.shortest;
+    optimal_path.order_added = paths.shortest.order_of_expansion;
   }
   // Process of elimination leaves us with the path from the random seeded edge
   else {
-    console.log("Using path generated from random edge seed.")
-    optimal_path.route_shortest = paths.random;
+    console.log("Using path generated from random edge seed.");
+    optimal_path.route_shortest = paths.random.route;
     optimal_path.distance = distances.random;
+    optimal_path.order_added = paths.random.order_of_expansion;
   }
 }
 
@@ -130,6 +134,8 @@ function FindStartEdges(cities, data) {
 }
 
 function ExpandPolygon(initial_edge, cities, data) {
+  // Start a record of what cities are added when.
+  var list = [];
   // Remove the visited cities
   var available_nodes = cities.slice();
   search.remove(available_nodes, initial_edge);
@@ -138,6 +144,10 @@ function ExpandPolygon(initial_edge, cities, data) {
   //    get the path in Hameltonian form.
   var path = initial_edge.slice();
   path.push(initial_edge[0]);
+  
+  // Record the starting edge
+  list.push(initial_edge[0]);
+  list.push(initial_edge[1]);
 
   var section_to_expand = {
     source_edge: [],
@@ -148,9 +158,10 @@ function ExpandPolygon(initial_edge, cities, data) {
     section_to_expand = FindNearestNode(path, available_nodes, data);
     search.remove(available_nodes, [section_to_expand.target_node]);
     search.insert(path, section_to_expand);
+    list.push(section_to_expand.target_node);
   }
 
-  return path;
+  return {route: path, order_of_expansion: list};
 }
 
 function FindNearestNode(path, available_nodes, data) {

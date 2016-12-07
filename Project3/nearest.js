@@ -9,7 +9,8 @@ module.exports = {
 // Global variables to store values while in recursive function.
 var optimal_path = {
   route_shortest: [],
-  distance: undefined
+  distance: undefined,
+  order_added: []
 };
 
 function polygonal_expansion(data) {
@@ -54,27 +55,30 @@ function MinMaxRandExpansion(cities, data) {
 
   var distances = {};
   for (var path in paths) {
-    distances[path] = distance.calculate(data, paths[path]);
+    distances[path] = distance.calculate(data, paths[path].route);
   }
 
   // Check if the path produced by the longest seeded edge is best
   if ((distances.longest <= distances.shortest) &&
     (distances.longest <= distances.random)) {
     console.log("Using path generated from longest edge seed.");
-    optimal_path.route_shortest = paths.longest;
+    optimal_path.route_shortest = paths.longest.route;
     optimal_path.distance = distances.longest;
+    optimal_path.order_added = paths.longest.order_of_expansion;
   }
   // Check if the path produced by the shortest seeded edge is best
   else if (distances.shortest <= distances.random) {
     console.log("Using path generated from shortest edge seed.");
-    optimal_path.route_shortest = paths.shortest;
+    optimal_path.route_shortest = paths.shortest.route;
     optimal_path.distance = distances.shortest;
+    optimal_path.order_added = paths.shortest.order_of_expansion;
   }
   // Process of elimination leaves us with the path from the random seeded edge
   else {
     console.log("Using path generated from random edge seed.");
-    optimal_path.route_shortest = paths.random;
+    optimal_path.route_shortest = paths.random.route;
     optimal_path.distance = distances.random;
+    optimal_path.order_added = paths.random.order_of_expansion;
   }
 }
 
@@ -130,6 +134,9 @@ function FindStartEdges(cities, data) {
 }
 
 function ExpandPolygon(initial_edge, cities, data) {
+  // Start a list of cities added
+  var list = [];
+  
   // Remove the visited cities
   var available_nodes = cities.slice();
   search.remove(available_nodes, initial_edge);
@@ -138,6 +145,9 @@ function ExpandPolygon(initial_edge, cities, data) {
   //    get the path in Hameltonian form.
   var path = initial_edge.slice();
   path.push(initial_edge[0]);
+  
+  list.push(initial_edge[0]);
+  list.push(initial_edge[1]);
 
   var section_to_expand = {
     source_edge: [],
@@ -146,12 +156,12 @@ function ExpandPolygon(initial_edge, cities, data) {
 
   while (available_nodes.length > 0) {
     section_to_expand = FindNearestNode(path, available_nodes, data);
-    console.log('Nearest Edge Node: ' + section_to_expand.source_edge + ' ' + section_to_expand.target_node);
     search.remove(available_nodes, [section_to_expand.target_node]);
     search.insert(path, section_to_expand);
+    list.push(section_to_expand.target_node);
   }
 
-  return path;
+  return {route: path, order_of_expansion: list};
 }
 
 function FindNearestNode(path, available_nodes, data) {
@@ -187,7 +197,6 @@ function FindNearestNode(path, available_nodes, data) {
   // Loop through all edge and node combinations to find the least costly
   for (var i = 0; i < path.length - 1; i++) {
     var selected_edge = [path[i], path[i + 1]];
-    console.log('Testing edge: ' + selected_edge);
     for (var node in available_nodes) {
       var selected_node = available_nodes[node];
       var edge_to_node_cost = EdgeToPointCost(selected_edge, selected_node, data);
@@ -196,7 +205,6 @@ function FindNearestNode(path, available_nodes, data) {
       if ((edge_to_node_cost >= 0) &&
         !search.intersectionIfIncluded(selected_edge, selected_node, path, data)) {
         if (edge_to_node_cost < minimum_cost) {
-          console.log('Assign by cost: ' + selected_edge + ' includes ' + selected_node + ' for ' + edge_to_node_cost);
           least_costly_expansion.source_edge = selected_edge;
           least_costly_expansion.target_node = selected_node;
 
@@ -208,7 +216,6 @@ function FindNearestNode(path, available_nodes, data) {
               source_edge: selected_edge,
               target_node: selected_node
             }, data)) {
-            console.log('Assign by endpoint: ' + selected_edge + ' includes ' + selected_node + ' for ' + edge_to_node_cost);
             least_costly_expansion.source_edge = selected_edge;
             least_costly_expansion.target_node = selected_node;
 

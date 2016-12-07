@@ -36,6 +36,14 @@ var ending_time = Date.now();
 if ('route_simplest' in best_trial) {
   console.log('Path with least nodes found:' + best_trial.route_simplest);
 }
+if ('order_added' in best_trial)
+{
+  console.log('Order added: ' + best_trial.order_added);
+}
+else
+{
+  best_trial.order_added = ['unknown'];
+}
 console.log('Best distance solution found:' + best_trial.route_shortest);
 console.log('Distance required to transverse:' + best_trial.distance);
 
@@ -46,5 +54,6 @@ html.graph({
   data: data.cities,
   path: best_trial.route_shortest,
   time: ending_time - beginning_time,
-  distance: best_trial.distance
+  distance: best_trial.distance,
+  order_added: best_trial.order_added
 });

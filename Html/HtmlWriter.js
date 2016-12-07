@@ -39,7 +39,8 @@ function buildHtml(agent, file, cities, path, config)
     var title = '<title >Path generated using' + agent + '</title>';
     var source = '<script src="../cytoscape.js"></script>';
     var message = '<p><font size="4">Solved ' + file + ' using' + agent + '</font></p> \
-                   <p><font size="4">Ordered travel list: ' + config.path + '</font></p> \
+                   <p><font size="4">Path: ' + config.path + '</font></p> \
+                   <p><font size="4">Order Added: ' + config.order_added + '</font></p> \
                    <p><font size="4">Distance to traverse: ' + config.distance + '</font></p> \
                    <p><font size="4">Execution time: ' + config.time + ' milliseconds' + '</font></p>';
     
